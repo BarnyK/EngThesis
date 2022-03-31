@@ -57,14 +57,14 @@ def read_pfm(filename):
 def read_image(filename: str, disparity):
     img = Image.open(filename)
     if disparity:
-        return img
+        return ImageOps.grayscale(img)
     return img.convert("RGB")
 
 
-def read_file(filename, disparity=True):
+def read_file(filename, disparity=False):
     _, ext = path.splitext(filename)
     ext = ext.lower()
     if ext == ".pfm":
         return read_pfm(filename)
     else:
-        read_image(filename, disparity)
+        return read_image(filename, disparity)
