@@ -45,6 +45,7 @@ class DisparityDataset(Dataset):
 
         if disp.dim() == 3:
             disp.squeeze_(0)
+            disp /= 255
 
         return left, right, disp
 
@@ -66,25 +67,30 @@ def pad_image_reverse(input:torch.Tensor, original_shape):
 
 
 if __name__ == "__main__":
+    print("Kitti2012")
     data1, data1_test = index_kitti2012(
         "E:\\Thesis\\Datasets\\Kitty2012\\data_stereo_flow\\training"
     )
 
+    print("Kitti2015")
     data2, data2_test = index_kitti2015(
         "E:\\Thesis\\Datasets\\Kitty2015\\data_scene_flow\\training"
     )
 
+    print("Driving")
     data3,data3_test = index_driving(
         "D:\\thesis_data\\driving__frames_cleanpass_webp",
         "D:\\thesis_data\\driving__disparity",
     )
 
+    print("FlyingThings3D")
     data4, data4_test = index_flyingthings(
         "D:\\thesis_data\\flyingthings3d__frames_cleanpass_webp",
         "D:\\thesis_data\\flyingthings3d__disparity",
     )
 
-    data5,data5_test = index_monkee(
+    print("Monkee")
+    data5,data5_test = index_monkaa(
         "D:\\thesis_data\\monkaa__frames_cleanpass_webp",
         "D:\\thesis_data\\monkaa__disparity",
     )
@@ -94,10 +100,11 @@ if __name__ == "__main__":
         xx = DataLoader(x)
         st = time.time()
         print(len(x))
-        for i, (left, right, disp) in tqdm(enumerate(xx)):
+        for i, (left, right, disp) in enumerate(xx):
             print(left.shape)
             print(right.shape)
             print(disp.shape)
+            print(disp.mean())
             pass
             break
         et = time.time()
