@@ -1,9 +1,9 @@
-from os import path
-import numpy as np
-from PIL import Image
 import re
-from PIL import ImageOps
+from os import path
+
+import numpy as np
 import torch
+from PIL import Image, ImageOps
 
 
 def __read_PFM(file):

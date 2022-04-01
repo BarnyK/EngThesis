@@ -5,8 +5,8 @@ from torchvision import transforms
 import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader, Dataset
 from os import path
-from indexes import *
-from file_handling import read_file
+from .indexes import *
+from .file_handling import read_file
 from tqdm import tqdm
 
 class DisparityDataset(Dataset):
@@ -55,15 +55,14 @@ class DisparityDataset(Dataset):
         return input
 
 def pad_image(input):
-    _,h,w = input.shape
+    *_, h, w = input.shape
     h_pad = 16 - h % 16
     w_pad = 16 - w % 16
-    TF.pad(input,(0,w_pad,h_pad,0))
-    return input, input.shape
+    res = TF.pad(input,(0,h_pad,w_pad,0))
+    return res, input.shape
 
 def pad_image_reverse(input:torch.Tensor, original_shape):
     return TF.crop(input,*original_shape)
-
 
 
 if __name__ == "__main__":

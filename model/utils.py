@@ -1,6 +1,5 @@
 from torch import nn
 import torch
-from zmq import device
 
 
 def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
