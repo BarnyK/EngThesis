@@ -3,7 +3,7 @@ import time
 from importlib.resources import path
 
 import torch
-from data.dataloader import check_paths_exist, pad_image, pad_image_reverse
+from data.dataset import check_paths_exist, pad_image, pad_image_reverse
 from data.file_handling import read_file
 from measures import error_3p, error_epe
 from model import Net

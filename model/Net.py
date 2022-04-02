@@ -18,10 +18,17 @@ class Net(nn.Module):
 
         # self.disparities = torch.arange(max_disp, requires_grad=False).reshape((1,max_disp,1,1))
         # Register buffer allows the underlying matrix to be automatically moved to gpu with the cuda() method
-        self.register_buffer(
-            "disparities",
-            torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1)),
-        )
+        # self.register_buffer(
+        #     "disparities",
+        #     torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1)),
+        # )
+        # self.disparities = nn.Parameter(torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1)),requires_grad=False)
+        self.disparities = torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1))
+
+    def to(self,device):
+        new_self = super().to(device)
+        new_self.disparities = new_self.disparities.to(device)
+        return new_self
 
     def forward(self, left, right):
         left = self.initial_extraction(left)
@@ -88,6 +95,7 @@ class Net(nn.Module):
             cost[:, :ch, i, :, i:] = left[:, :, :, i:]
             cost[:, ch:, i, :, i:] = right[:, :, :, :-i]
         return cost
+
 
 
 def main():

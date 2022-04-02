@@ -1,6 +1,6 @@
 import argparse
 from data.indexes import SUPPORTED_DATASETS
-from procedures import evaluate, test_indexes
+from procedures import evaluate, train, test_indexes
 # Modes:
 #   Train - training the network
 #   Eval  - evaluate given image pair and return resulting disparity
@@ -12,7 +12,7 @@ def main():
     parser.add_argument("mode",type=str,choices=["train","evaluate","test"],metavar="mode")
 
     datasets_group = parser.add_argument_group("Dataset", "Arguments used for dataset handling")
-    datasets_group.add_argument("--dataset", dest="name",choices=SUPPORTED_DATASETS,action="store",help="Dataset used for training")
+    datasets_group.add_argument("--dataset", dest="dataset_name",choices=SUPPORTED_DATASETS,action="store",help="Dataset used for training")
     datasets_group.add_argument("--root","--image-root",dest="root_images",action="store",type=str,help="Root folder with dataset")
     datasets_group.add_argument("--disparity-root",dest="root_disparity",action="store",type=str,help="Folder with disparity for sceneflow sets")
     datasets_group.add_argument("--split",dest="split",action="store",type=float,default=0.8,help="Percentage of dataset used for training")
@@ -42,6 +42,7 @@ def main():
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
     test_group.add_argument("--loading", dest="test_loading",action="store_true",help="If loading of data should be tested")
+
     # Tests for indexing each set
     args = parser.parse_args()
     args_dict = vars(args)
@@ -59,6 +60,7 @@ def main():
 
 
 def setupTest(args: argparse.Namespace):
+    print("Testing")
     kwargs = vars(args)
     # print(kwargs)
     if args.test_indexes:
@@ -67,6 +69,7 @@ def setupTest(args: argparse.Namespace):
 
 
 def setupEvaluation(args):
+    print("Evaluation")
     kwargs = vars(args)
     if not kwargs.get("left_image"):
         print("left image path not defined, please use --left-image flag")
@@ -78,11 +81,18 @@ def setupEvaluation(args):
         print("result image path not defined, please use --result-image flag")
         return
     return evaluate(**kwargs)
-    raise NotImplementedError("Evaluation mode is not implemented yet")
 
 
 def setupTraining(args):
-    raise NotImplementedError("Training mode is not implemented yet")
+    kwargs = vars(args)
+    print("Training")
+    if not kwargs.get("epochs"):
+        print("epochs need to be set, please sue --epochs flag")
+        return
+    if not kwargs.get("batch_size"):
+        print("batch size need to be set, please sue --batch-size flag")
+        return
+    return train(**kwargs)
 
 if __name__ == "__main__":
     main()

@@ -15,3 +15,4 @@ def test_indexes(args: dict):
         print(er)
     except TypeError as er:
         print(er)
+
