@@ -3,7 +3,7 @@ from torch import from_numpy, le
 import torch
 from torchvision import transforms
 import torchvision.transforms.functional as TF
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from os import path
 from .indexes import *
 from .file_handling import read_file
