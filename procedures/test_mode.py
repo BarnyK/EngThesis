@@ -1,5 +1,7 @@
+import enum
+from data.dataset import DisparityDataset
 from data.indexes import index_set
-
+from torch.utils.data import DataLoader
 
 def test_indexes(args: dict):
     try:
@@ -16,3 +18,9 @@ def test_indexes(args: dict):
     except TypeError as er:
         print(er)
 
+def test_loader(args: dict):
+    train, _ = index_set(**args)
+    trainset = DisparityDataset(train,random_crop=False)
+    trainloader = DataLoader(trainset,1,shuffle=False,num_workers=0,pin_memory=True)
+    for i,(l,r,d) in enumerate(trainloader):
+        print(d.mean())

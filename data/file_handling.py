@@ -57,7 +57,7 @@ def read_pfm(filename):
 def read_image(filename: str, disparity):
     img = Image.open(filename)
     if disparity:
-        return ImageOps.grayscale(img)
+        return img
     return img.convert("RGB")
 
 

@@ -44,11 +44,10 @@ def choose_device(cpu: bool):
     raise Exception("Pytorch did not find cuda")
 
 
-def save_model(model: Net,optimizer:Optimizer,max_disp:int,savepath:str):
+def save_model(model: Net,optimizer:Optimizer,savepath:str):
     res = {
         "model":model.state_dict(),
         "optimizer":optimizer.state_dict(),
-        "max_disp":max_disp
     }
     torch.save(res,savepath)
     return res
@@ -56,4 +55,4 @@ def save_model(model: Net,optimizer:Optimizer,max_disp:int,savepath:str):
 
 def load_model(loadpath:str):
     state = torch.load(loadpath)
-    return state["model"],state["optimizer"], state["max_disp"]
+    return state["model"],state["optimizer"]

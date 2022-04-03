@@ -45,7 +45,7 @@ class DisparityDataset(Dataset):
 
         if disp.dim() == 3:
             disp.squeeze_(0)
-            disp /= 255
+            disp = disp.float()/256
 
         return left, right, disp
 

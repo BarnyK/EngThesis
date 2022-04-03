@@ -1,6 +1,8 @@
 import os
 import time
 from importlib.resources import path
+from PIL import Image
+import numpy as np
 
 import torch
 from data.dataset import check_paths_exist, pad_image, pad_image_reverse
@@ -69,7 +71,7 @@ def evaluate(
 
     if disparity_image and os.path.exists(disparity_image):
         gt = read_file(disparity_image, disparity=True)
-        gt = to_tensor(gt).to(device)
+        gt = to_tensor(gt).to(device).float()/256
         if gt.shape == disp.shape:
             print("EPE:", error_epe(gt, disp))
             print("3p:", error_3p(gt, disp))
@@ -79,8 +81,11 @@ def evaluate(
                 "Can't create measures if output disparity is different shape than ground truth"
             )
 
-    disp_image = transforms.ToPILImage("L")(disp)
-
+    
+    disp.squeeze_(0)
+    res = np.array(disp.cpu(),dtype=np.uint8)
+    disp_image = Image.fromarray(res)
+    # disp_image = transforms.ToPILImage()(disp)
     os.makedirs(os.path.dirname(result_image), exist_ok=True)
     if not result_image.lower().endswith(".png"):
         result_image += ".png"

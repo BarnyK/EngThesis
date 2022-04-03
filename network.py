@@ -1,6 +1,7 @@
 import argparse
 from data.indexes import SUPPORTED_DATASETS
 from procedures import evaluate, train, test_indexes
+from procedures.test_mode import test_loader
 # Modes:
 #   Train - training the network
 #   Eval  - evaluate given image pair and return resulting disparity
@@ -65,6 +66,8 @@ def setupTest(args: argparse.Namespace):
     # print(kwargs)
     if args.test_indexes:
         return test_indexes(kwargs)
+    if args.test_loading:
+        return test_loader(kwargs)
     return
 
 
