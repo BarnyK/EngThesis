@@ -23,10 +23,8 @@ def error_3p(
 
 def error_epe(ground_truth: np.ndarray, disparity: np.ndarray) -> float:
     mask = ground_truth > 0
-    res = sum(abs(disparity - ground_truth)[mask])
-    if isinstance(res, torch.Tensor):
-        return res.item()
-    return res
+    res = torch.abs(disparity - ground_truth)[mask]
+    return res.mean().item()
 
 
 def test_error_3p():
