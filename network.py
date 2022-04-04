@@ -1,7 +1,7 @@
 import argparse
 from data.indexes import SUPPORTED_DATASETS
-from procedures import evaluate, train, test_indexes
-from procedures.test_mode import test_loader
+from procedures import evaluate, train
+from procedures.test_mode import test_indexes, print_validation, test_loader
 # Modes:
 #   Train - training the network
 #   Eval  - evaluate given image pair and return resulting disparity
@@ -16,7 +16,8 @@ def main():
     datasets_group.add_argument("--dataset", dest="dataset_name",choices=SUPPORTED_DATASETS,action="store",help="Dataset used for training")
     datasets_group.add_argument("--root","--image-root",dest="root_images",action="store",type=str,help="Root folder with dataset")
     datasets_group.add_argument("--disparity-root",dest="root_disparity",action="store",type=str,help="Folder with disparity for sceneflow sets")
-    datasets_group.add_argument("--split",dest="split",action="store",type=float,default=0.8,help="Percentage of dataset used for training")
+    datasets_group.add_argument("--split",dest="split",action="store",type=float,default=0.2,help="Percentage of dataset used for validation. Doesn't affect Flyingthings3d which is pre-split.")
+    datasets_group.add_argument("--validation-length",dest="validation_length",action="store",type=int,default=0,help="Number of images used for validation. If set 'split' is ignored")
     datasets_group.add_argument("--occlussion",dest="occlussion",action="store_true",help="If occludded disparity should be used for Kitti sets")
     datasets_group.add_argument("--colored",dest="colored",action="store_true",help="If colored input should be used for Kitti2012 set")
     datasets_group.add_argument("--no-webp",dest="webp",action="store_false",help="If dataset is not using webp in sceneflow sets")
@@ -32,6 +33,7 @@ def main():
     train_group.add_argument("--epochs",dest="epochs",type=int,help="How many epochs of training will be done")
     train_group.add_argument("--batch-size",dest="batch_size",type=int,help="How many images should be passed at once through the network")
     train_group.add_argument("--learning-rate",dest="learning_rate",type=float,help="Learning rate for the optimizer to start with")
+    train_group.add_argument("--eval-each-epoch",dest="eval_each_epoch",type=int,default=0,help="How often evaluation on test set should be done")
 
     eval_group = parser.add_argument_group("Evaluation","Arguments used for evaluation mode")
     eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation")
@@ -43,6 +45,7 @@ def main():
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
     test_group.add_argument("--loading", dest="test_loading",action="store_true",help="If loading of data should be tested")
+    test_group.add_argument("--print-validation", dest="print_validation",action="store_true",help="Print out files used for validation with given parameters")
 
     # Tests for indexing each set
     args = parser.parse_args()
@@ -68,6 +71,8 @@ def setupTest(args: argparse.Namespace):
         return test_indexes(kwargs)
     if args.test_loading:
         return test_loader(kwargs)
+    if args.print_validation:
+        return print_validation(kwargs)
     return
 
 
