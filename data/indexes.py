@@ -13,16 +13,18 @@ SUPPORTED_DATASETS = [
     "sceneflow",
 ]
 
+
 def check_paths_exist(*args):
     for a in args:
         if not path.exists(a):
             raise ValueError(f"path {a} does not exist")
 
+
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
     """
     Matches image pairs with disparity files into tuples of three
     """
-    check_paths_exist(left_folder,right_folder,disp_folder)
+    check_paths_exist(left_folder, right_folder, disp_folder)
     triplets = []
     for disparity_file in listdir(disp_folder):
         filename = path.splitext(disparity_file)[0]
@@ -40,24 +42,36 @@ def match_images_disparities(left_folder, right_folder, disp_folder, input_exten
     return triplets
 
 
-def index_kitti2012(root, occlussion=True, split=0.2, colored=True, validation_length=0,**kwargs):
+def index_kitti2012(
+    root, occlussion=True, split=0.2, colored=True, validation_length=0, **kwargs
+):
     disp_folder = "disp_occ"
     if not occlussion:
         disp_folder = "disp_noc"
     if colored:
         return __index_kitti(root, "colored_0", "colored_1", disp_folder)
-    return __index_kitti(root, "image_0", "image_1", disp_folder, "png",split,validation_length)
+    return __index_kitti(
+        root, "image_0", "image_1", disp_folder, "png", split, validation_length
+    )
 
 
-def index_kitti2015(root, occlussion=True, split=0.2,validation_length=0, **kwargs):
+def index_kitti2015(root, occlussion=True, split=0.2, validation_length=0, **kwargs):
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    return __index_kitti(root, "image_2", "image_3", disp_folder,"png",split,validation_length)
+    return __index_kitti(
+        root, "image_2", "image_3", disp_folder, "png", split, validation_length
+    )
 
 
 def __index_kitti(
-    root, left_folder, right_folder, disp_folder, input_extension="png", split=0.2,validation_length=0
+    root,
+    left_folder,
+    right_folder,
+    disp_folder,
+    input_extension="png",
+    split=0.2,
+    validation_length=0,
 ):
     if not validation_length and split < 0 or split > 1:
         raise ValueError("split should be a float between 0 and 1")
@@ -74,10 +88,12 @@ def __index_kitti(
         validation_length = int(len(data) * split)
         train_length = len(data) - validation_length
 
-    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
-    trainset = sorted(trainset,key=lambda x:x[0])
-    testset = sorted(testset,key=lambda x:x[0])
-    
+    trainset, testset = random_split(
+        data, [train_length, validation_length], generator=Generator().manual_seed(1111)
+    )
+    trainset = sorted(trainset, key=lambda x: x[0])
+    testset = sorted(testset, key=lambda x: x[0])
+
     return trainset, testset
 
 
@@ -92,7 +108,13 @@ def combine_kitti(root, occlussion=True, split=0.2, **kwargs):
 
 
 def index_driving(
-    root_images, root_disparity, webp=True, disparity_side="left", split=0.2, validation_length=0,**kwargs
+    root_images,
+    root_disparity,
+    webp=True,
+    disparity_side="left",
+    split=0.2,
+    validation_length=0,
+    **kwargs,
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
@@ -132,11 +154,13 @@ def index_driving(
         validation_length = int(len(data) * split)
         train_length = len(data) - validation_length
 
-    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
-    trainset = sorted(trainset,key=lambda x:x[0])
-    testset = sorted(testset,key=lambda x:x[0])
+    trainset, testset = random_split(
+        data, [train_length, validation_length], generator=Generator().manual_seed(1111)
+    )
+    trainset = sorted(trainset, key=lambda x: x[0])
+    testset = sorted(testset, key=lambda x: x[0])
 
-    return trainset,testset
+    return trainset, testset
 
 
 def index_flyingthings(
@@ -173,7 +197,13 @@ def index_flyingthings(
 
 
 def index_monkaa(
-    root_images, root_disparity, webp=True, disparity_side="left", split=0.8,validation_length=0, **kwargs
+    root_images,
+    root_disparity,
+    webp=True,
+    disparity_side="left",
+    split=0.8,
+    validation_length=0,
+    **kwargs,
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
@@ -200,11 +230,14 @@ def index_monkaa(
         validation_length = int(len(data) * split)
         train_length = len(data) - validation_length
 
-    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
-    trainset = sorted(trainset,key=lambda x:x[0])
-    testset = sorted(testset,key=lambda x:x[0])
-    
+    trainset, testset = random_split(
+        data, [train_length, validation_length], generator=Generator().manual_seed(1111)
+    )
+    trainset = sorted(trainset, key=lambda x: x[0])
+    testset = sorted(testset, key=lambda x: x[0])
+
     return trainset, testset
+
 
 def combine_sceneflow(root, webp=True, disparity_side="left", split=0.2, **kwargs):
     if root is None:
@@ -223,7 +256,14 @@ def combine_sceneflow(root, webp=True, disparity_side="left", split=0.2, **kwarg
     driving_disparity = path.join(root, "driving__disparity")
     flying_disparity = path.join(root, "flyingthings3d__disparity")
 
-    check_paths_exist(monkaa_images,monkaa_disparity,driving_images,driving_disparity,flying_images,flying_disparity)
+    check_paths_exist(
+        monkaa_images,
+        monkaa_disparity,
+        driving_images,
+        driving_disparity,
+        flying_images,
+        flying_disparity,
+    )
 
     driving, driving_test = index_driving(
         driving_images, driving_disparity, webp, disparity_side, split

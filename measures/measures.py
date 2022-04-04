@@ -1,11 +1,13 @@
-import numpy as np
 from typing import Tuple
-from typing import Union
 import torch
+from time import time
 
 
+@torch.jit.script
 def error_3p(
-    ground_truth: np.ndarray, disparity: np.ndarray, tau: Tuple[int, float] = (3, 0.05)
+    ground_truth: torch.Tensor,
+    disparity: torch.Tensor,
+    tau: Tuple[int, float] = (3, 0.05),
 ) -> float:
     """
     Calculate error for given disparity.
@@ -21,21 +23,14 @@ def error_3p(
     return n_err / len(E)
 
 
-def error_epe(ground_truth: np.ndarray, disparity: np.ndarray) -> float:
+@torch.jit.script
+def error_epe(ground_truth: torch.Tensor, disparity: torch.Tensor) -> float:
     mask = ground_truth > 0
     res = torch.abs(disparity - ground_truth)[mask]
     return res.mean().item()
 
 
 def test_error_3p():
-    x: np.ndarray = np.arange(20)
-    x = x.reshape((4, 5)) + 1
-    y = x.copy()
-    y[0, 0] = 5
-    print(error_3p(y, x))
-
-
-def test_error_3p_t():
     x = torch.arange(1, 21, 1).reshape((4, 5)).cuda()
     y = torch.clone(x)
     y[0, 0] = 5
@@ -43,22 +38,40 @@ def test_error_3p_t():
 
 
 def test_error_epe():
-    x: np.ndarray = np.arange(20, dtype=np.float32)
-    x = x.reshape((4, 5)) + 1
-    y = x.copy()
-    y[0, 0] = 5
-    print(error_epe(y, x))
-
-
-def test_error_epe_t():
     x = torch.arange(1, 21, 1, dtype=torch.float32).reshape((4, 5)).cuda()
     y = torch.clone(x)
     y[0, 0] = 5
     print(error_epe(y, x))
 
 
+def test_time():
+    gt = torch.rand((3, 256, 512), device="cuda")
+    d = torch.rand((3, 256, 512), device="cuda")
+    st = time()
+    for i in range(100000):
+        gt = torch.rand((3, 256, 512), device="cuda")
+        d = torch.rand((3, 256, 512), device="cuda")
+        error_epe(gt, d)
+        error_3p(gt, d)
+    et = time()
+    print(et - st)
+
+
+def test_time_():
+    gt = torch.rand((3, 256, 512), device="cuda")
+    d = torch.rand((3, 256, 512), device="cuda")
+    st = time()
+    for i in range(100000):
+        gt = torch.rand((3, 256, 512), device="cuda")
+        d = torch.rand((3, 256, 512), device="cuda")
+        error_epe_(gt, d)
+        error_3p_(gt, d)
+    et = time()
+    print(et - st)
+
+
 if __name__ == "__main__":
     test_error_3p()
-    test_error_3p_t()
     test_error_epe()
-    test_error_epe_t()
+    test_time()
+    test_time_()

@@ -9,6 +9,10 @@ from .indexes import *
 from .file_handling import read_file
 from tqdm import tqdm
 
+IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
+normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
+
+
 class DisparityDataset(Dataset):
     def __init__(
         self, paths: list[tuple[str, str, str]], random_crop=True, crop_shape=(256, 512)
@@ -18,7 +22,7 @@ class DisparityDataset(Dataset):
         if random_crop:
             self.crop_shape = crop_shape
         self.__to_tensor = transforms.ToTensor()
-        self.normalize = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+        self.normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
 
     def __len__(self):
         return len(self.image_paths)
@@ -27,7 +31,7 @@ class DisparityDataset(Dataset):
         left, right, disp = self.image_paths[index]
         left = read_file(left)
         right = read_file(right)
-        disp = read_file(disp,disparity=True)
+        disp = read_file(disp, disparity=True)
 
         ## Crop
         if self.random_crop:
@@ -45,24 +49,26 @@ class DisparityDataset(Dataset):
 
         if disp.dim() == 3:
             disp.squeeze_(0)
-            disp = disp.float()/256
+            disp = disp.float() / 256
 
         return left, right, disp
 
     def to_tensor(self, input):
-        if not isinstance(input,torch.Tensor):
+        if not isinstance(input, torch.Tensor):
             return self.__to_tensor(input)
         return input
+
 
 def pad_image(input):
     *_, h, w = input.shape
     h_pad = 16 - h % 16
     w_pad = 16 - w % 16
-    res = TF.pad(input,(0,h_pad,w_pad,0))
+    res = TF.pad(input, (0, h_pad, w_pad, 0))
     return res, input.shape
 
-def pad_image_reverse(input:torch.Tensor, original_shape):
-    return TF.crop(input,*original_shape)
+
+def pad_image_reverse(input: torch.Tensor, original_shape):
+    return TF.crop(input, *original_shape)
 
 
 if __name__ == "__main__":
@@ -77,7 +83,7 @@ if __name__ == "__main__":
     )
 
     print("Driving")
-    data3,data3_test = index_driving(
+    data3, data3_test = index_driving(
         "D:\\thesis_data\\driving__frames_cleanpass_webp",
         "D:\\thesis_data\\driving__disparity",
     )
@@ -89,13 +95,13 @@ if __name__ == "__main__":
     )
 
     print("Monkee")
-    data5,data5_test = index_monkaa(
+    data5, data5_test = index_monkaa(
         "D:\\thesis_data\\monkaa__frames_cleanpass_webp",
         "D:\\thesis_data\\monkaa__disparity",
     )
 
-    for data in [data1,data2,data3,data4,data5]:
-        x = DisparityDataset(data,random_crop=True)
+    for data in [data1, data2, data3, data4, data5]:
+        x = DisparityDataset(data, random_crop=True)
         xx = DataLoader(x)
         st = time.time()
         print(len(x))
@@ -108,8 +114,8 @@ if __name__ == "__main__":
             break
         et = time.time()
         print(et - st)
-    for data in [data1_test,data2_test,data3_test,data4_test,data5_test]:
-        x = DisparityDataset(data,random_crop=False)
+    for data in [data1_test, data2_test, data3_test, data4_test, data5_test]:
+        x = DisparityDataset(data, random_crop=False)
         xx = DataLoader(x)
         st = time.time()
         print(len(x))
@@ -121,5 +127,3 @@ if __name__ == "__main__":
             break
         et = time.time()
         print(et - st)
-    
-    

@@ -16,18 +16,12 @@ class Net(nn.Module):
         self.spp = SPPBlock(128, 32, 64)
         self.stacked_hourglass = StackedHourglassModule()
 
-        # self.disparities = torch.arange(max_disp, requires_grad=False).reshape((1,max_disp,1,1))
-        # Register buffer allows the underlying matrix to be automatically moved to gpu with the cuda() method
-        # self.register_buffer(
-        #     "disparities",
-        #     torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1)),
-        # )
-        # self.disparities = nn.Parameter(torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1)),requires_grad=False)
         self.disparities = torch.arange(max_disp, requires_grad=False).reshape((1, max_disp, 1, 1))
 
     def to(self,device):
         new_self = super().to(device)
         new_self.disparities = new_self.disparities.to(device)
+
         return new_self
 
     def forward(self, left, right):
@@ -75,9 +69,10 @@ class Net(nn.Module):
         out = torch.sum(out, 1)
         return out
 
+
     def create_cost_volume(self, left: torch.Tensor, right: torch.Tensor):
         # Initialize volume with zeros on the same device as input
-        cost = torch.zeros(
+        cost = torch.empty(
             (
                 left.shape[0],
                 left.shape[1] + right.shape[1],
