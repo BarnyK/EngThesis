@@ -64,18 +64,15 @@ def evaluate(
         st = time.time()
         disp = m.forward(left, right)
         et = time.time()
-        print(et - st)
+        print("Pass took: ",round(et - st,2),"seconds")
 
     disp = pad_image_reverse(disp, s)
-    print(disp.shape)
-
     if disparity_image and os.path.exists(disparity_image):
         gt = read_file(disparity_image, disparity=True)
         gt = to_tensor(gt).to(device).float()/256
         if gt.shape == disp.shape:
             print("EPE:", error_epe(gt, disp))
             print("3p:", error_3p(gt, disp))
-            print(gt.shape)
         else:
             print(
                 "Can't create measures if output disparity is different shape than ground truth"
