@@ -21,7 +21,7 @@ def evaluate(
     max_disp: int,
     load_file: str,
     cpu: bool,
-    **kwargs
+    **kwargs,
 ):
     if max_disp is None or max_disp <= 0:
         raise ValueError("max_disp must be integer bigger than 0")
@@ -34,6 +34,7 @@ def evaluate(
         print(ex)
         return
 
+    # Load and pre-process files
     left = read_file(left_image)
     right = read_file(right_image)
     to_tensor = transforms.ToTensor()
@@ -45,8 +46,8 @@ def evaluate(
     left, s = pad_image(left)
     right, _ = pad_image(right)
 
+    # Load model
     m = Net(max_disp)
-
     if load_file:
         state = torch.load(load_file)
         if "model" in state:
@@ -58,17 +59,21 @@ def evaluate(
     m.to(device)
     m.eval()
 
+    # Pass through the network
     with torch.inference_mode():
         _ = m.forward(left, right)
         st = time.time()
         disp = m.forward(left, right)
         et = time.time()
-        print("Pass took: ",round(et - st,2),"seconds")
+        print("Pass took: ", round(et - st, 2), "seconds")
 
+    # Create stats
     disp = pad_image_reverse(disp, s)
     if disparity_image and os.path.exists(disparity_image):
         gt = read_file(disparity_image, disparity=True)
-        gt = to_tensor(gt).to(device).float()/256
+        if not isinstance(gt, torch.Tensor):
+            gt = to_tensor(gt).float() / 256
+        gt = gt.to(device).unsqueeze(0)
         if gt.shape == disp.shape:
             print("EPE:", error_epe(gt, disp))
             print("3p:", error_3p(gt, disp))
@@ -77,11 +82,10 @@ def evaluate(
                 "Can't create measures if output disparity is different shape than ground truth"
             )
 
-    
+    # Save image
     disp = disp.squeeze(0)
-    res = np.array(disp.cpu(),dtype=np.uint8)
+    res = np.array(disp.cpu(), dtype=np.uint8)
     disp_image = Image.fromarray(res)
-    # disp_image = transforms.ToPILImage()(disp)
     os.makedirs(os.path.dirname(result_image), exist_ok=True)
     if not result_image.lower().endswith(".png"):
         result_image += ".png"

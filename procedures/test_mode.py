@@ -3,10 +3,13 @@ from data.dataset import DisparityDataset
 from data.indexes import index_set
 from torch.utils.data import DataLoader
 
+
 def test_indexes(args: dict):
     try:
         train, test = index_set(**args)
-        print(f"Dataset {args.get('dataset_name')!r} total images: {len(train)+len(test)} training: {len(train)}, test: {len(test)}")
+        print(
+            f"Dataset {args.get('dataset_name')!r} total images: {len(train)+len(test)} training: {len(train)}, test: {len(test)}"
+        )
     except FileNotFoundError as er:
         print(er)
         print("The path specified is incorrect or the data inside is not as expected")
@@ -16,6 +19,7 @@ def test_indexes(args: dict):
         print(er)
     except TypeError as er:
         print(er)
+
 
 def print_validation(args: dict):
     try:
@@ -32,9 +36,10 @@ def print_validation(args: dict):
     except TypeError as er:
         print(er)
 
+
 def test_loader(args: dict):
     train, _ = index_set(**args)
-    trainset = DisparityDataset(train,random_crop=False)
-    trainloader = DataLoader(trainset,1,shuffle=False,num_workers=0,pin_memory=True)
-    for i,(l,r,d) in enumerate(trainloader):
+    trainset = DisparityDataset(train, random_crop=False)
+    trainloader = DataLoader(trainset, 1, shuffle=False, num_workers=0, pin_memory=True)
+    for i, (l, r, d) in enumerate(trainloader):
         print(d.mean())
