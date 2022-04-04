@@ -21,7 +21,6 @@ def evaluate(
     max_disp: int,
     load_file: str,
     cpu: bool,
-    timed: bool,
     **kwargs
 ):
     if max_disp is None or max_disp <= 0:
@@ -59,7 +58,7 @@ def evaluate(
     m.to(device)
     m.eval()
 
-    with torch.no_grad():
+    with torch.inference_mode():
         _ = m.forward(left, right)
         st = time.time()
         disp = m.forward(left, right)
@@ -79,7 +78,7 @@ def evaluate(
             )
 
     
-    disp.squeeze_(0)
+    disp = disp.squeeze(0)
     res = np.array(disp.cpu(),dtype=np.uint8)
     disp_image = Image.fromarray(res)
     # disp_image = transforms.ToPILImage()(disp)
