@@ -33,14 +33,14 @@ def main():
     train_group.add_argument("--epochs",dest="epochs",type=int,help="How many epochs of training will be done")
     train_group.add_argument("--batch-size",dest="batch_size",type=int,help="How many images should be passed at once through the network")
     train_group.add_argument("--learning-rate",dest="learning_rate",type=float,help="Learning rate for the optimizer to start with")
-    train_group.add_argument("--eval-each-epoch",dest="eval_each_epoch",type=int,default=0,help="How often evaluation on test set should be done")
+    train_group.add_argument("--eval-each-epoch",dest="eval_each_epoch",type=int,default=1,help="How often evaluation on test set should be done")
+    train_group.add_argument("--log-file",dest="log_file",type=str,help="File to which data obtained during training is saved")
 
     eval_group = parser.add_argument_group("Evaluation","Arguments used for evaluation mode")
     eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation")
     eval_group.add_argument("--right-image",dest="right_image",type=str, help="Path to right image for evaluation")
     eval_group.add_argument("--disparity-image",dest="disparity_image",type=str, help="Path to disparity image for evaluation")
     eval_group.add_argument("--result-image",dest="result_image",type=str, help="Path under which the result will be saved")
-    eval_group.add_argument("--timed",dest="timed",action="store_true",help="If evaluation should be timed (takes longer than without)")
 
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")

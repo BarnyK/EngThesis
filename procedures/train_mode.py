@@ -1,16 +1,27 @@
-from statistics import mode
+from os import path
+from time import time
 
 import torch
-from tqdm import tqdm
+import torch.nn.functional as F
 from data.dataset import DisparityDataset, pad_image, pad_image_reverse
 from data.indexes import index_set
-from torch.utils.data import DataLoader
-from time import time
 from measures.measures import error_3p, error_epe
-from model.utils import choose_device,load_model,save_model
 from model import Net
-import torch.nn.functional as F
-def train(epochs,batch_size,learning_rate,dataset_name,cpu,max_disp,load_file,save_file,eval_each_epoch,**kwargs):
+from model.utils import choose_device, load_model, save_model
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+
+def train(epochs,batch_size,learning_rate,dataset_name,cpu,max_disp,load_file,save_file,log_file,eval_each_epoch,**kwargs):
+    save_filename = path.basename(save_file)
+
+    if log_file and path.isdir(log_file):
+        log_file = path.join(log_file,f"{save_filename}.log")
+
+    def save_log(epoch,t,rl,epe,e3p,epe_t,e3p_t):
+        if log_file:
+            with open(log_file,"a") as f:
+                f.write(f"{save_filename},{dataset_name},{learning_rate},{epoch},{t},{rl},{epe},{e3p},{epe_t},{e3p_t}\n")
     # Index set
     # Create Dataset
     # Create Dataloader
@@ -67,22 +78,24 @@ def train(epochs,batch_size,learning_rate,dataset_name,cpu,max_disp,load_file,sa
             scaler.update()
             rl += loss.item()
         
-        et = time()
+        train_time = time() - st
         epe_avg = epe_sum/len(trainset)
         e3p_avg = e3p_sum/len(trainset)
 
         if save_file:
-            save_model(net,optimizer,save_file+f"-{epoch}")
+            save_model(net,optimizer,f"{save_file}-{epoch}.tmp")
 
         print(f"Epoch {epoch+1} out of {epochs}")
-        print("Took: ", round(et-st,2))
+        print("Took: ", round(train_time,2),"seconds")
         print("Running loss: ",rl/i)
         print("EPE: ",epe_avg)
         print("3p error: ",e3p_avg)
         
+        epe_sum_t = -1
+        e3p_sum_t = -1
         if eval_each_epoch > 0 and (epoch+1) % eval_each_epoch == 0:
-            epe_sum = 0
-            e3p_sum = 0
+            epe_sum_t = 0
+            e3p_sum_t = 0
             print("Evaluating on test set")
             for i,(left,right,gt) in tqdm(enumerate(testloader),total=len(testloader)):
                 net.eval()
@@ -97,12 +110,14 @@ def train(epochs,batch_size,learning_rate,dataset_name,cpu,max_disp,load_file,sa
                         d = pad_image_reverse(d,og)
                         epe = error_epe(gt,d) * d.shape[0]
                         e3p = error_3p(gt,d) * d.shape[0]
-                epe_sum += epe
-                e3p_sum += e3p
-            epe_avg = epe_sum/len(testset)
-            e3p_avg = e3p_sum/len(testset)
+                epe_sum_t += epe
+                e3p_sum_t += e3p
+            epe_avg_t = epe_sum_t/len(testset)
+            e3p_avg_t = e3p_sum_t/len(testset)
             print("Stats on test set:")
-            print("EPE: ",epe_avg)
-            print("E3P: ",e3p_avg)
+            print("EPE: ",epe_avg_t)
+            print("E3P: ",e3p_avg_t)
+        save_log(epoch,train_time,rl,epe_avg,e3p_avg,epe_avg_t,e3p_avg_t)
+        
     if save_file:
         save_model(net,optimizer,save_file)
