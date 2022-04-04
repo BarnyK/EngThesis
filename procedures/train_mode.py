@@ -3,9 +3,9 @@ from time import time
 
 import torch
 import torch.nn.functional as F
-from data.dataset import DisparityDataset, pad_image, pad_image_reverse
-from data.indexes import index_set
-from measures.measures import error_3p, error_epe
+from data import DisparityDataset, index_set
+from data.utils import pad_image, pad_image_reverse
+from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model, save_model
 from torch.utils.data import DataLoader
@@ -25,10 +25,11 @@ def train(
     eval_each_epoch: int,
     **kwargs,
 ):
-    save_filename = path.basename(save_file)
-
-    if log_file and path.isdir(log_file):
-        log_file = path.join(log_file, f"{save_filename}.log")
+    # torch.autograd.set_detect_anomaly(True)
+    if save_file is not None:
+        save_filename = path.basename(save_file)
+        if log_file and path.isdir(log_file):
+            log_file = path.join(log_file, f"{save_filename}.log")
 
     def save_log(epoch, t, rl, epe, e3p, epe_t, e3p_t):
         if log_file:
@@ -63,7 +64,7 @@ def train(
     net = Net(max_disp).to(device)
 
     if load_file:
-        model_state, optim_state = load_model(load_file)
+        model_state, optim_state, scaler_state = load_model(load_file)
         net.load_state_dict(model_state)
 
     optimizer = torch.optim.Adam(net.parameters(), learning_rate)
@@ -73,6 +74,8 @@ def train(
             optimizer.param_groups[0]["lr"] = learning_rate
 
     scaler = torch.cuda.amp.GradScaler()
+    if load_file and scaler_state is not None:
+        scaler.load_state_dict(scaler_state)
 
     for epoch in range(epochs):
         st = time()
@@ -83,7 +86,7 @@ def train(
         for i, (left, right, gt) in tqdm(
             enumerate(trainloader), total=len(trainloader)
         ):
-            optimizer.zero_grad()
+            
             left = left.to(device)
             right = right.to(device)
             gt = gt.to(device)
@@ -97,6 +100,7 @@ def train(
                 )
             epe_sum += error_epe(gt, d3) * d3.shape[0]
             e3p_sum += error_3p(gt, d3) * d3.shape[0]
+            optimizer.zero_grad(True)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
@@ -107,7 +111,7 @@ def train(
         e3p_avg = e3p_sum / len(trainset)
 
         if save_file:
-            save_model(net, optimizer, f"{save_file}-{epoch}.tmp")
+            save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
 
         print(f"Epoch {epoch+1} out of {epochs}")
         print("Took: ", round(train_time, 2), "seconds")
@@ -146,4 +150,4 @@ def train(
         save_log(epoch, train_time, rl, epe_avg, e3p_avg, epe_avg_t, e3p_avg_t)
 
     if save_file:
-        save_model(net, optimizer, save_file)
+        save_model(net, optimizer, scaler, save_file)

@@ -3,10 +3,10 @@ from os import path
 
 import numpy as np
 import torch
-from PIL import Image, ImageOps
+from PIL import Image
 
 
-def __read_PFM(file):
+def __read_PFM(file: str):
     """
     readPFM reads .pfm files and returns them as
     Written by authors of SceneFlow datasets
@@ -49,12 +49,12 @@ def __read_PFM(file):
     return data, scale
 
 
-def read_pfm(filename):
+def read_pfm(filename: str):
     data, _ = __read_PFM(filename)
     return torch.from_numpy(data.copy())
 
 
-def read_image(filename: str, disparity):
+def read_image(filename: str, disparity: bool) -> Image:
     img = Image.open(filename)
     if disparity:
         return img

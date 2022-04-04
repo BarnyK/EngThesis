@@ -72,7 +72,7 @@ class Net(nn.Module):
 
     def create_cost_volume(self, left: torch.Tensor, right: torch.Tensor):
         # Initialize volume with zeros on the same device as input
-        cost = torch.empty(
+        cost = torch.zeros(
             (
                 left.shape[0],
                 left.shape[1] + right.shape[1],

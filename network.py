@@ -1,5 +1,5 @@
 import argparse
-from data.indexes import SUPPORTED_DATASETS
+from data import SUPPORTED_DATASETS
 from procedures import evaluate, train
 from procedures.test_mode import test_indexes, print_validation, test_loader
 # Modes:

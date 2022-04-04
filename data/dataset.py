@@ -1,16 +1,10 @@
-import time
-from torch import from_numpy, le
 import torch
-from torchvision import transforms
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
-from os import path
-from .indexes import *
-from .file_handling import read_file
-from tqdm import tqdm
+from torchvision import transforms
 
-IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
-normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
+from .utils import IMAGENET_NORMALIZATION_PARAMS
+from .file_handling import read_file
 
 
 class DisparityDataset(Dataset):
@@ -57,15 +51,3 @@ class DisparityDataset(Dataset):
         if not isinstance(input, torch.Tensor):
             return self.__to_tensor(input)
         return input
-
-
-def pad_image(input):
-    *_, h, w = input.shape
-    h_pad = 16 - h % 16
-    w_pad = 16 - w % 16
-    res = TF.pad(input, (0, h_pad, w_pad, 0))
-    return res, input.shape
-
-
-def pad_image_reverse(input: torch.Tensor, original_shape):
-    return TF.crop(input, *original_shape)
