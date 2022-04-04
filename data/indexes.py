@@ -1,5 +1,7 @@
 from os import path
 from os import listdir
+from torch import Generator
+from torch.utils.data import random_split
 
 SUPPORTED_DATASETS = [
     "kitti2012",
@@ -38,35 +40,48 @@ def match_images_disparities(left_folder, right_folder, disp_folder, input_exten
     return triplets
 
 
-def index_kitti2012(root, occlussion=True, split=0.8, colored=True, **kwargs):
+def index_kitti2012(root, occlussion=True, split=0.2, colored=True, validation_length=0,**kwargs):
     disp_folder = "disp_occ"
     if not occlussion:
         disp_folder = "disp_noc"
     if colored:
         return __index_kitti(root, "colored_0", "colored_1", disp_folder)
-    return __index_kitti(root, "image_0", "image_1", disp_folder, split=split)
+    return __index_kitti(root, "image_0", "image_1", disp_folder, "png",split,validation_length)
 
 
-def index_kitti2015(root, occlussion=True, split=0.8, **kwargs):
+def index_kitti2015(root, occlussion=True, split=0.2,validation_length=0, **kwargs):
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    return __index_kitti(root, "image_2", "image_3", disp_folder, split=split)
+    return __index_kitti(root, "image_2", "image_3", disp_folder,"png",split,validation_length)
 
 
 def __index_kitti(
-    root, left_folder, right_folder, disp_folder, input_extension="png", split=0.8
+    root, left_folder, right_folder, disp_folder, input_extension="png", split=0.2,validation_length=0
 ):
-    if split < 0 or split > 1:
+    if not validation_length and split < 0 or split > 1:
         raise ValueError("split should be a float between 0 and 1")
+    if validation_length < 0:
+        raise ValueError("validation_length should not be lower than 0")
     left = path.join(root, "training", left_folder)
     right = path.join(root, "training", right_folder)
     disparity = path.join(root, "training", disp_folder)
     data = match_images_disparities(left, right, disparity, input_extension)
-    return data[: int(len(data) * split)], data[int(len(data) * split) :]
+
+    if validation_length > 0:
+        train_length = len(data) - validation_length
+    else:
+        validation_length = int(len(data) * split)
+        train_length = len(data) - validation_length
+
+    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
+    trainset = sorted(trainset,key=lambda x:x[0])
+    testset = sorted(testset,key=lambda x:x[0])
+    
+    return trainset, testset
 
 
-def combine_kitti(root, occlussion=True, split=0.8, **kwargs):
+def combine_kitti(root, occlussion=True, split=0.2, **kwargs):
     kitti2012_folder = path.join(root, "data_stereo_flow")
     kitti2015_folder = path.join(root, "data_scene_flow")
     kitti2012, kitti2012_test = index_kitti2012(kitti2012_folder, occlussion, split)
@@ -77,12 +92,14 @@ def combine_kitti(root, occlussion=True, split=0.8, **kwargs):
 
 
 def index_driving(
-    root_images, root_disparity, webp=True, disparity_side="left", split=0.8, **kwargs
+    root_images, root_disparity, webp=True, disparity_side="left", split=0.2, validation_length=0,**kwargs
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
-    if split < 0 or split > 1:
+    if not validation_length and (split < 0 or split > 1):
         raise ValueError("split should be a float between 0 and 1")
+    if validation_length < 0:
+        raise ValueError("validation_length should not be lower than 0")
     maindir = "frames_cleanpass_webp"
     extension = "webp"
     if not webp:
@@ -109,16 +126,25 @@ def index_driving(
         triplets = match_images_disparities(left, right, disparity, extension)
         data.extend(triplets)
 
-    return data[: int(len(data) * split)], data[int(len(data) * split) :]
+    if validation_length > 0:
+        train_length = len(data) - validation_length
+    else:
+        validation_length = int(len(data) * split)
+        train_length = len(data) - validation_length
+
+    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
+    trainset = sorted(trainset,key=lambda x:x[0])
+    testset = sorted(testset,key=lambda x:x[0])
+
+    return trainset,testset
 
 
 def index_flyingthings(
-    root_images, root_disparity, webp=True, disparity_side="left", split=0.8, **kwargs
+    root_images, root_disparity, webp=True, disparity_side="left", **kwargs
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
-    if split < 0 or split > 1:
-        raise ValueError("split should be a float between 0 and 1")
+
     maindir = "frames_cleanpass_webp"
     extension = "webp"
     if not webp:
@@ -147,13 +173,14 @@ def index_flyingthings(
 
 
 def index_monkaa(
-    root_images, root_disparity, webp=True, disparity_side="left", split=0.8, **kwargs
+    root_images, root_disparity, webp=True, disparity_side="left", split=0.8,validation_length=0, **kwargs
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
-    if split < 0 or split > 1:
+    if not validation_length and (split < 0 or split > 1):
         raise ValueError("split should be a float between 0 and 1")
-
+    if validation_length < 0:
+        raise ValueError("validation_length should not be lower than 0")
     maindir = "frames_cleanpass_webp"
     extension = "webp"
     if not webp:
@@ -166,10 +193,20 @@ def index_monkaa(
         right = path.join(root_images, maindir, subfolder, "right")
         disparity = path.join(root_disparity, "disparity", subfolder, disparity_side)
         data.extend(match_images_disparities(left, right, disparity, extension))
-    return data[: int(len(data) * split)], data[int(len(data) * split) :]
 
+    if validation_length > 0:
+        train_length = len(data) - validation_length
+    else:
+        validation_length = int(len(data) * split)
+        train_length = len(data) - validation_length
 
-def combine_sceneflow(root, webp=True, disparity_side="left", split=0.8, **kwargs):
+    trainset, testset = random_split(data,[train_length,validation_length],generator=Generator().manual_seed(1111))
+    trainset = sorted(trainset,key=lambda x:x[0])
+    testset = sorted(testset,key=lambda x:x[0])
+    
+    return trainset, testset
+
+def combine_sceneflow(root, webp=True, disparity_side="left", split=0.2, **kwargs):
     if root is None:
         raise ValueError("root folder is not set")
     if not path.exists(root):
@@ -192,7 +229,7 @@ def combine_sceneflow(root, webp=True, disparity_side="left", split=0.8, **kwarg
         driving_images, driving_disparity, webp, disparity_side, split
     )
     flying, flying_test = index_flyingthings(
-        flying_images, flying_disparity, webp, disparity_side, split
+        flying_images, flying_disparity, webp, disparity_side
     )
     monkaa, monkaa_test = index_monkaa(
         monkaa_images, monkaa_disparity, webp, disparity_side, split
