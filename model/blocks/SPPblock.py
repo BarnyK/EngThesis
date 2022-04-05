@@ -53,10 +53,10 @@ class SPPBlock(nn.Module):
             (
                 input,
                 skip_connection,
-                pool1_result,
-                pool2_result,
-                pool3_result,
                 pool4_result,
+                pool3_result,
+                pool2_result,
+                pool1_result,
             ),
             dim=1,
         )
