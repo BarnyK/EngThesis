@@ -154,11 +154,11 @@ def training_loop(
     epe_sum = 0
     e3p_sum = 0
     for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
-        optimizer.zero_grad(False)
-        left = left.to(device)
-        right = right.to(device)
+        optimizer.zero_grad(True)
+        left = left.to(device,non_blocking=True)
+        right = right.to(device,non_blocking=True)
         mask = gt > 0
-        gt = gt.to(device)
+        gt = gt.to(device,non_blocking=True)
 
         with autocast(enabled=device.type == "cuda"):
             d1, d2, d3 = net(left, right)
