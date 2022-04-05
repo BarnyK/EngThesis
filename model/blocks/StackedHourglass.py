@@ -21,13 +21,13 @@ class StackedHourglassModule(nn.Module):
         self.hourglass3 = Hourglass(32)
 
         self.hourglass1_processing = nn.Sequential(
-            conv3d_norm_relu(32,32,3,1,1), nn.Conv3d(32,1,3,1,1,bias=False)
+            conv3d_norm_relu(32, 32, 3, 1, 1), nn.Conv3d(32, 1, 3, 1, 1, bias=False)
         )
         self.hourglass2_processing = nn.Sequential(
-            conv3d_norm_relu(32,32,3,1,1), nn.Conv3d(32,1,3,1,1,bias=False)
+            conv3d_norm_relu(32, 32, 3, 1, 1), nn.Conv3d(32, 1, 3, 1, 1, bias=False)
         )
         self.hourglass3_processing = nn.Sequential(
-            conv3d_norm_relu(32,32,3,1,1), nn.Conv3d(32,1,3,1,1,bias=False)
+            conv3d_norm_relu(32, 32, 3, 1, 1), nn.Conv3d(32, 1, 3, 1, 1, bias=False)
         )
 
     def forward(self, input):
@@ -47,4 +47,3 @@ class StackedHourglassModule(nn.Module):
         out3 = self.hourglass1_processing(out3) + out2
 
         return out1, out2, out3
-

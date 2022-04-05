@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torch import nn
 from ..utils import conv3d_norm, conv3d_norm_relu
 
+
 class Hourglass(nn.Module):
     def __init__(self, in_layers):
         super().__init__()
@@ -21,10 +22,10 @@ class Hourglass(nn.Module):
         )
 
         self.deconv2 = nn.Sequential(
-            nn.ConvTranspose3d(in_layers * 2, in_layers , 3, 2, 1, 1, bias=False),
-            nn.BatchNorm3d(in_layers ),
+            nn.ConvTranspose3d(in_layers * 2, in_layers, 3, 2, 1, 1, bias=False),
+            nn.BatchNorm3d(in_layers),
         )
-        
+
     def forward(
         self,
         input: torch.Tensor,

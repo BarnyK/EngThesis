@@ -44,16 +44,16 @@ def choose_device(cpu: bool):
     raise Exception("Pytorch did not find cuda")
 
 
-def save_model(model: Net,optimizer:Optimizer,scaler,savepath:str):
+def save_model(model: Net, optimizer: Optimizer, scaler, savepath: str):
     res = {
-        "model":model.state_dict(),
-        "optimizer":optimizer.state_dict(),
-        "scaler":scaler.state_dict(),
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "scaler": scaler.state_dict(),
     }
-    torch.save(res,savepath)
+    torch.save(res, savepath)
     return res
 
 
-def load_model(loadpath:str):
+def load_model(loadpath: str):
     state = torch.load(loadpath)
-    return state["model"],state["optimizer"],state.get("scaler")
+    return state.get("model"), state.get("optimizer"), state.get("scaler")
