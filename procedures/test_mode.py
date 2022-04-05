@@ -40,13 +40,16 @@ def print_validation(args: dict):
 def test_loader(args: dict):
     from tqdm import tqdm
     import torch
+
     train, _ = index_set(**args)
     trainset = DisparityDataset(train, random_crop=False)
     trainloader = DataLoader(trainset, 1, shuffle=False, num_workers=2, pin_memory=True)
-    for i, (l, r, d) in tqdm(enumerate(trainloader),total=len(trainloader)):
+    for i, (l, r, d) in tqdm(enumerate(trainloader), total=len(trainloader)):
+        if torch.min(d).item() <= 0:
+            print(torch.min(d))
         if torch.isnan(l).any():
-            print("nan detected",i)
+            print("nan detected", i)
         if torch.isnan(r).any():
-            print("nan detected",i)
+            print("nan detected", i)
         if torch.isnan(d).any():
-            print("nan detected",i)
+            print("nan detected", i)

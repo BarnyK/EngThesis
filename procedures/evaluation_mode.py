@@ -44,7 +44,7 @@ def evaluate(
 
     left = normalize(left).unsqueeze(0).to(device)
     right = normalize(right).unsqueeze(0).to(device)
-    
+
     if left.shape != right.shape:
         print("Images of different shapes can't be passed to the network")
         return
@@ -58,7 +58,7 @@ def evaluate(
         if "model" in state:
             m.load_state_dict(state["model"])
         else:
-            print("Couldn't load given load_file")
+            print("Couldn't load model from given file")
             return
 
     m.to(device)
