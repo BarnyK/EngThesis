@@ -1,16 +1,4 @@
-from typing import Callable, Optional
-from numpy import block
 from torch import nn
-
-from ..utils import conv2d_norm, conv2d_norm_relu
-
-
-class ResBlock(nn.Module):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def forward(self, input):
-        pass
 
 
 class BaseBlock(nn.Module):
@@ -67,6 +55,6 @@ class ResBlock(nn.Module):
             cur_channels = out_channels
 
         self.layers = nn.Sequential(*layers)
-    
+
     def forward(self, input):
         return self.layers(input)
