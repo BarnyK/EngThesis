@@ -1,7 +1,7 @@
 import argparse
 from data import SUPPORTED_DATASETS
 from procedures import evaluate, train
-from procedures.test_mode import test_indexes, print_validation, test_loader
+from procedures.test_mode import test_indexes, print_validation, test_loader,print_training
 # Modes:
 #   Train - training the network
 #   Eval  - evaluate given image pair and return resulting disparity
@@ -25,6 +25,7 @@ def main():
 
     model_group = parser.add_argument_group("Model","Arguments for model tweaking and loading")
     model_group.add_argument("--max-disp",dest="max_disp",action="store",type=int,help="What's the maximal disparity used in the model")
+    model_group.add_argument("--no-sdea",dest="no_sdea",action="store_true",default=False,help="Whether to use SDEA blocks or resblocks in the model")
     model_group.add_argument("--cpu",dest="cpu",action="store_true",help="If model should use CPU")
     model_group.add_argument("--save",dest="save_file",action="store",help="Path to file in which data should be saved")
     model_group.add_argument("--load",dest="load_file",action="store",help="Path to file which should be loaded")
@@ -46,6 +47,7 @@ def main():
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
     test_group.add_argument("--loading", dest="test_loading",action="store_true",help="If loading of data should be tested")
     test_group.add_argument("--print-validation", dest="print_validation",action="store_true",help="Print out files used for validation with given parameters")
+    test_group.add_argument("--print-training", dest="print_training",action="store_true",help="Print out files used for training with given parameters")
 
     # Tests for indexing each set
     args = parser.parse_args()
@@ -73,6 +75,8 @@ def setupTest(args: argparse.Namespace):
         return test_loader(kwargs)
     if args.print_validation:
         return print_validation(kwargs)
+    if args.print_training:
+        return print_training(kwargs)
     return
 
 

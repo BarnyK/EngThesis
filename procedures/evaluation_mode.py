@@ -9,7 +9,7 @@ from data.utils import check_paths_exist, pad_image, pad_image_reverse, normaliz
 from data.file_handling import read_file
 from measures import error_3p, error_epe
 from model import Net
-from model.utils import choose_device
+from model.utils import choose_device, load_model
 from torchvision import transforms
 
 
@@ -21,6 +21,7 @@ def evaluate(
     max_disp: int,
     load_file: str,
     cpu: bool,
+    no_sdea: bool,
     **kwargs,
 ):
     if max_disp is None or max_disp <= 0:
@@ -52,11 +53,11 @@ def evaluate(
     right, _ = pad_image(right)
 
     # Load model
-    m = Net(max_disp)
+    m = Net(max_disp,no_sdea)
     if load_file:
-        state = torch.load(load_file)
-        if "model" in state:
-            m.load_state_dict(state["model"])
+        state, *_ = load_model(load_file)
+        if state:
+            m.load_state_dict(state)
         else:
             print("Couldn't load model from given file")
             return
@@ -78,7 +79,9 @@ def evaluate(
         gt = read_file(disparity_image, disparity=True)
         if not isinstance(gt, torch.Tensor):
             gt = to_tensor(gt).float() / 256
-        gt = gt.to(device).unsqueeze(0)
+        else:
+            gt = gt.unsqueeze(0)
+        gt = gt.to(device)
         if gt.shape == disp.shape:
             print("EPE:", error_epe(gt, disp))
             print("3p:", error_3p(gt, disp))

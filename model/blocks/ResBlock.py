@@ -37,21 +37,23 @@ class BaseBlock(nn.Module):
 
 
 class ResBlock(nn.Module):
-    def __init__(self, blocks, in_channels, out_channels, stride):
+    def __init__(self, blocks, in_channels, out_channels, stride, padding=1, dilation=1):
         super().__init__()
         layers = []
         cur_channels = in_channels
-        cur_stride = stride
 
         for i in range(blocks):
             layer = BaseBlock(
                 cur_channels,
                 out_channels,
                 3,
-                cur_stride,
+                stride,
+                padding,
+                dilation,
             )
             layers.append(layer)
-            cur_stride = 1
+            stride = 1
+            dilation=1
             cur_channels = out_channels
 
         self.layers = nn.Sequential(*layers)

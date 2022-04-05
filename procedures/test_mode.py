@@ -36,6 +36,20 @@ def print_validation(args: dict):
     except TypeError as er:
         print(er)
 
+def print_training(args: dict):
+    try:
+        train, test = index_set(**args)
+        for t in train:
+            print(t[2])
+    except FileNotFoundError as er:
+        print(er)
+        print("The path specified is incorrect or the data inside is not as expected")
+    except ValueError as er:
+        print(er)
+    except KeyError as er:
+        print(er)
+    except TypeError as er:
+        print(er)
 
 def test_loader(args: dict):
     from tqdm import tqdm

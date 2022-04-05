@@ -7,18 +7,17 @@ from .blocks import (
     SPPBlock,
     StackedHourglassModule,
     InitialFeatureExtraction,
+    FeatureExtraction,
 )
 
 
 class Net(nn.Module):
     ## Main module for Network
-    def __init__(self, max_disp=192):
+    def __init__(self, max_disp=192,no_sdea=False):
         super().__init__()
         self.maxdisp = max_disp
-        self.initial_extraction = InitialFeatureExtraction()
-        self.sdea0 = SDEABlock(64, 128, max_disp)
-        self.sdea1 = SDEABlock(128, 128, max_disp)
-        self.spp = SPPBlock(128, 32, 64)
+        self.feature_extraction = FeatureExtraction(max_disp,no_sdea)
+
         self.stacked_hourglass = StackedHourglassModule()
 
         self.disparities = torch.arange(max_disp, requires_grad=False).reshape(
@@ -32,19 +31,7 @@ class Net(nn.Module):
         return new_self
 
     def forward(self, left, right):
-        left = self.initial_extraction(left)
-        right = self.initial_extraction(right)
-
-        left_skip, right_skip = left, right
-        # 64 x H/4 x W/4
-        left, right = self.sdea0(left, right)
-
-        # 128 x H/4 x W/4
-        left, right = self.sdea1(left, right)
-
-        # 128 x H/4 x W/4
-        left = self.spp(left, left_skip)
-        right = self.spp(right, right_skip)
+        left,right = self.feature_extraction(left,right)
 
         # 32 x H/4 x W/4
         cost = self.create_cost_volume(left, right)

@@ -26,6 +26,7 @@ def train(
     save_file: str,
     log_file: str,
     eval_each_epoch: int,
+    no_sdea:bool,
     **kwargs,
 ):
     torch.manual_seed(1111)
@@ -76,7 +77,7 @@ def train(
 
     try:
         net, optimizer, scaler = prepare_model_optim_scaler(
-            load_file, device, max_disp, learning_rate
+            load_file, device, max_disp, no_sdea, learning_rate
         )
     except FileNotFoundError as err:
         print("Could not find given load_file ", load_file)
@@ -97,7 +98,7 @@ def train(
             print("Training metrics:")
             print(trm)
 
-            test_metrics = Metrics()
+            tm = Metrics()
             if eval_each_epoch > 0 and (epoch + 1) % eval_each_epoch == 0:
                 print("Testing loop")
                 tm = testing_loop(net, testloader, testset, device)
@@ -114,13 +115,13 @@ def train(
 
 
 def prepare_model_optim_scaler(
-    load_file: str, device: torch.device, max_disp: int, learning_rate: float
+    load_file: str, device: torch.device, max_disp: int, no_sdea:bool, learning_rate: float
 ):
     model_state, optim_state, scaler_state = None, None, None
     if load_file:
         model_state, optim_state, scaler_state = load_model(load_file)
 
-    net = Net(max_disp).to(device)
+    net = Net(max_disp,no_sdea).to(device)
     if model_state:
         net.load_state_dict(model_state)
 
