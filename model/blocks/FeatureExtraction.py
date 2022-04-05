@@ -47,11 +47,19 @@ class FeatureExtraction(nn.Module):
         self.no_sdea = no_sdea
         self.initial = InitialFeatureExtraction()
         if self.no_sdea:
-            self.resblock3 = ResBlock(3, 64, 128, 1,dilation=2)
-            self.resblock4 = ResBlock(3, 128, 128, 1,dilation=4)
+            self.resblock3 = ResBlock(3, 64, 128, 1,dilation=1)
+            self.resblock4 = ResBlock(3, 128, 128, 1,dilation=2)
         else:
-            self.sdea0 = SDEABlock(64, 128, max_disp)
-            self.sdea1 = SDEABlock(128, 128, max_disp)
+            self.sdea0 = nn.Sequential(
+                SDEABlock(64, 128, max_disp),
+                SDEABlock(128, 128, max_disp),
+            )
+            self.sdea0_0 = SDEABlock(64, 128, max_disp)
+            self.sdea0_1 = SDEABlock(128, 128, max_disp)
+            self.sdea0_2 = SDEABlock(128, 128, max_disp)
+            self.sdea1_0 = SDEABlock(128, 128, max_disp)
+            self.sdea1_1 = SDEABlock(128, 128, max_disp)
+            self.sdea1_2 = SDEABlock(128, 128, max_disp)
 
         self.spp = SPPBlock(128, 32, 64)
 
@@ -69,8 +77,12 @@ class FeatureExtraction(nn.Module):
             right = self.resblock4(right)
 
         else:
-            left, right = self.sdea0(left, right)
-            left, right = self.sdea1(left, right)
+            left, right = self.sdea0_0(left, right)
+            left, right = self.sdea0_1(left, right)
+            left, right = self.sdea0_2(left, right)
+            left, right = self.sdea1_0(left, right)
+            left, right = self.sdea1_1(left, right)
+            left, right = self.sdea1_2(left, right)
 
         left = self.spp(left, left_skip)
         right = self.spp(right, right_skip)

@@ -85,6 +85,9 @@ def train(
     except UnpicklingError as err:
         print("Could not load given file, because it has wrong format ", load_file)
         return
+    except RuntimeError as err:
+        print(err)
+        return
 
     try:
         for epoch in range(epochs):
