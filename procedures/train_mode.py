@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from os import path
+from pickle import UnpicklingError
 from time import time
 
 import torch
@@ -26,133 +28,202 @@ def train(
     eval_each_epoch: int,
     **kwargs,
 ):
-    # torch.autograd.set_detect_anomaly(True)
-    torch.manual_seed(0)
+    torch.manual_seed(1111)
+
     if save_file is not None:
         save_filename = path.basename(save_file)
         if log_file and path.isdir(log_file):
             log_file = path.join(log_file, f"{save_filename}.log")
 
-    def save_log(epoch, t, rl, epe, e3p, epe_t, e3p_t):
-        if log_file:
-            with open(log_file, "a") as f:
-                f.write(
-                    f"{save_filename},{dataset_name},{learning_rate},{epoch},{t},{rl},{epe},{e3p},{epe_t},{e3p_t}\n"
-                )
 
-    # Index set
-    # Create Dataset
-    # Create Dataloader
+    def save_log(epoch, train_metrics: Metrics, test_metrics: Metrics):
+        """
+        Function for appending metrics to log file
+        """
+        trm = train_metrics
+        tm = test_metrics
+        if log_file:
+            log = f"{save_filename},{dataset_name},{learning_rate},{epoch},"
+            log += f"{trm.time_taken},{trm.running_loss_mean},{trm.epe_avg},{trm.e3p_avg},"
+            log += f"{tm.time_taken},{tm.running_loss_mean},{tm.epe_avg},{tm.e3p_avg}\n"
+            with open(log_file, "a") as f:
+                f.write(log)
+
     try:
         device = choose_device(cpu)
     except Exception as ex:
         print(ex)
         return
 
-    trainset, testset = index_set(dataset_name, **kwargs)
-    trainset = DisparityDataset(trainset)
-    testset = DisparityDataset(testset, random_crop=False)
+    # Create dataloaders
+    try:
+        trainset, testset = index_set(dataset_name, **kwargs)
+        trainset = DisparityDataset(trainset)
+        testset = DisparityDataset(testset, random_crop=False)
+        trainloader = DataLoader(
+            trainset,
+            batch_size,
+            shuffle=True,
+            num_workers=2,
+            pin_memory=True,
+        )
+        testloader = DataLoader(
+            testset, 1, shuffle=False, num_workers=2, pin_memory=True
+        )
+    except ValueError as er:
+        print(er)
+        return
 
-    trainloader = DataLoader(
-        trainset,
-        batch_size,
-        shuffle=True,
-        num_workers=2,
-        pin_memory=True,
-        drop_last=True,
-    )
-    testloader = DataLoader(testset, 1, shuffle=False, num_workers=2, pin_memory=False)
+    try:
+        net, optimizer, scaler = prepare_model_optim_scaler(
+            load_file, device, max_disp, learning_rate
+        )
+    except FileNotFoundError as err:
+        print("Could not find given load_file ", load_file)
+        return
+    except UnpicklingError as err:
+        print("Could not load given file, because it has wrong format ", load_file)
+        return
 
-    net = Net(max_disp).to(device)
+    try:
+        for epoch in range(epochs):
+            print(f"Epoch {epoch+1} out of {epochs}")
+            print("Training loop")
 
-    if load_file:
-        model_state, optim_state, scaler_state = load_model(load_file)
-        net.load_state_dict(model_state)
+            trm = training_loop(net, trainloader, trainset, optimizer, scaler, device)
+            if save_file:
+                save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
 
-    optimizer = torch.optim.Adam(net.parameters(), learning_rate, eps=1e-6)
-    if load_file:
-        optimizer.load_state_dict(optim_state)
-        if learning_rate >= 0:
-            optimizer.param_groups[0]["lr"] = learning_rate
+            print("Training metrics:")
+            print(trm)
 
-    scaler = GradScaler(init_scale=256, enabled=not cpu)
-    if load_file and scaler_state is not None:
-        scaler.load_state_dict(scaler_state)
+            test_metrics = Metrics()
+            if eval_each_epoch > 0 and (epoch + 1) % eval_each_epoch == 0:
+                print("Testing loop")
+                tm = testing_loop(net, testloader, testset, device)
+                print("Test metrics:")
+                print(tm)
 
-    for epoch in range(epochs):
-        st = time()
-        net.train()
-        rl = 0.0
-        epe_sum = 0
-        e3p_sum = 0
-        for i, (left, right, gt) in tqdm(
-            enumerate(trainloader), total=len(trainloader)
-        ):
-            optimizer.zero_grad(False)
-            left = left.to(device)
-            right = right.to(device)
-            mask = gt > 0
-            gt = gt.to(device)
-
-            with autocast(enabled=not cpu):
-                d1, d2, d3 = net(left, right)
-                loss = (
-                    0.5 * F.smooth_l1_loss(d1[mask], gt[mask])
-                    + 0.7 * F.smooth_l1_loss(d2[mask], gt[mask])
-                    + F.smooth_l1_loss(d3[mask], gt[mask])
-                )
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
-            # Metrics
-            epe_sum += error_epe(gt, d3) * d3.shape[0]
-            e3p_sum += error_3p(gt, d3) * d3.shape[0]
-            rl += loss.item() * d3.shape[0]
-
-        train_time = time() - st
-        rl_avg = rl / len(trainset)
-        epe_avg = epe_sum / len(trainset)
-        e3p_avg = e3p_sum / len(trainset)
-
-        if save_file:
-            save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
-
-        print(f"Epoch {epoch+1} out of {epochs}")
-        print("Took: ", round(train_time, 2), "seconds")
-        print("Running loss: ", rl_avg)
-        print("EPE: ", epe_avg)
-        print("3p error: ", e3p_avg)
-
-        epe_sum_t = -1
-        e3p_sum_t = -1
-        if eval_each_epoch > 0 and (epoch + 1) % eval_each_epoch == 0:
-            epe_sum_t = 0
-            e3p_sum_t = 0
-            print("Evaluating on test set")
-            for i, (left, right, gt) in tqdm(
-                enumerate(testloader), total=len(testloader)
-            ):
-                net.eval()
-                left = left.to(device)
-                right = right.to(device)
-                gt = gt.to(device)
-                left, og = pad_image(left)
-                right, og = pad_image(right)
-                with torch.inference_mode():
-                    with torch.cuda.amp.autocast():
-                        d = net(left, right)
-                        d = pad_image_reverse(d, og)
-                        epe = error_epe(gt, d) * d.shape[0]
-                        e3p = error_3p(gt, d) * d.shape[0]
-                epe_sum_t += epe
-                e3p_sum_t += e3p
-            epe_avg_t = epe_sum_t / len(testset)
-            e3p_avg_t = e3p_sum_t / len(testset)
-            print("Stats on test set:")
-            print("EPE: ", epe_avg_t)
-            print("E3P: ", e3p_avg_t)
-        save_log(epoch, train_time, rl_avg, epe_avg, e3p_avg, epe_avg_t, e3p_avg_t)
+            save_log(epoch, trm, tm)
+    except KeyboardInterrupt:
+        print("Received KeyboardInterrupt, closing")
+        return
 
     if save_file:
         save_model(net, optimizer, scaler, save_file)
+
+
+def prepare_model_optim_scaler(
+    load_file: str, device: torch.device, max_disp: int, learning_rate: float
+):
+    model_state, optim_state, scaler_state = None, None, None
+    if load_file:
+        model_state, optim_state, scaler_state = load_model(load_file)
+
+    net = Net(max_disp).to(device)
+    if model_state:
+        net.load_state_dict(model_state)
+
+    optimizer = torch.optim.Adam(net.parameters(), learning_rate, eps=1e-6)
+    if optim_state:
+        optimizer.load_state_dict(optim_state)
+        optimizer.param_groups[0]["lr"] = learning_rate
+
+    scaler = GradScaler(init_scale=256, enabled=device.type == "cuda")
+    if scaler_state:
+        scaler.load_state_dict(scaler_state)
+
+    return net, optimizer, scaler
+
+
+def training_loop(
+    net: Net,
+    trainloader: DataLoader,
+    trainset: DisparityDataset,
+    optimizer: torch.optim.Optimizer,
+    scaler: GradScaler,
+    device: torch.device,
+):
+    net.train()
+    st = time()
+    rl = 0.0
+    epe_sum = 0
+    e3p_sum = 0
+    for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
+        optimizer.zero_grad(False)
+        left = left.to(device)
+        right = right.to(device)
+        mask = gt > 0
+        gt = gt.to(device)
+
+        with autocast(enabled=device.type == "cuda"):
+            d1, d2, d3 = net(left, right)
+            loss = (
+                0.5 * F.smooth_l1_loss(d1[mask], gt[mask])
+                + 0.7 * F.smooth_l1_loss(d2[mask], gt[mask])
+                + F.smooth_l1_loss(d3[mask], gt[mask])
+            )
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+
+        # Metrics
+        epe_sum += error_epe(gt, d3) * d3.shape[0]
+        e3p_sum += error_3p(gt, d3) * d3.shape[0]
+        rl += loss.item() * d3.shape[0]
+
+    train_time = time() - st
+    rl_avg = rl / len(trainset)
+    epe_avg = epe_sum / len(trainset)
+    e3p_avg = e3p_sum / len(trainset)
+    return Metrics(train_time, rl_avg, epe_avg, e3p_avg)
+
+
+def testing_loop(
+    net: Net, testloader: DataLoader, testset: DisparityDataset, device: torch.device
+):
+    net.eval()
+    st = time()
+    rl = 0.0
+    epe_sum = 0.0
+    e3p_sum = 0.0
+    print("Evaluating on test set")
+    for i, (left, right, gt) in tqdm(enumerate(testloader), total=len(testloader)):
+        left = left.to(device)
+        right = right.to(device)
+        mask = gt != 0
+        gt = gt.to(device)
+        left, og = pad_image(left)
+        right, og = pad_image(right)
+        with torch.inference_mode():
+            with autocast(device.type=="cuda"):
+                d = net(left, right)
+                d = pad_image_reverse(d, og)
+                epe = error_epe(gt, d) * d.shape[0]
+                e3p = error_3p(gt, d) * d.shape[0]
+                loss = F.smooth_l1_loss(d[mask], gt[mask])
+            # metrics
+            rl += loss * d.shape[0]
+            epe_sum += epe * d.shape[0]
+            e3p_sum += e3p * d.shape[0]
+
+    train_time = time() - st
+    rl_avg = rl / len(testset)
+    epe_avg = epe_sum / len(testset)
+    e3p_avg = e3p_sum / len(testset)
+    return Metrics(train_time, rl_avg, epe_avg, e3p_avg)
+
+
+@dataclass
+class Metrics:
+    time_taken: float = -1
+    running_loss_mean: float = -1
+    epe_avg: float = -1
+    e3p_avg: float = -1
+
+    def __str__(self):
+        res = f"Time taken: {self.time_taken:.2f}s\n"
+        res += f"Running loss: {self.running_loss_mean:.4f}\n"
+        res += f"Endpoint error: {self.epe_avg:.4f}\n"
+        res += f"3 pixel error: {self.e3p_avg:.4f}"
+        return res
