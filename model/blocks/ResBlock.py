@@ -19,7 +19,7 @@ class BaseBlock(nn.Module):
         self.downsample = None
         if stride != 1 or in_channels != out_channels:
             self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, 1, stride),
+                nn.Conv2d(in_channels, out_channels, 1, stride,bias=False),
                 nn.BatchNorm2d(out_channels),
             )
         self.relu = nn.ReLU(inplace=True)
