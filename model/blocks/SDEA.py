@@ -9,10 +9,10 @@ class SDEABlock(nn.Module):
         super().__init__()
         self.maxdisp = maxdisp
         self.g1 = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, 1, 1),
+            nn.Conv2d(in_channels, out_channels, 3, 1, 1,bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
-            nn.Conv2d(out_channels, out_channels, 3, 1, 1),
+            nn.Conv2d(out_channels, out_channels, 3, 1, 1,bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
         )
@@ -63,7 +63,7 @@ def weight_matrix_calculation(left, right, maxdisp: int):
     on the other G2 in themax-disp range
     """
 
-    weight_volume = torch.zeros_like(left)
+    weight_volume = torch.empty_like(left)
 
     for j in range(left.shape[3]):
         left_bound = max(0, j - maxdisp)
