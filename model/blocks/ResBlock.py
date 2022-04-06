@@ -19,7 +19,7 @@ class BaseBlock(nn.Module):
         self.downsample = None
         if stride != 1 or in_channels != out_channels:
             self.downsample = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, 1, stride,bias=False),
+                nn.Conv2d(in_channels, out_channels, 1, stride, bias=False),
                 nn.BatchNorm2d(out_channels),
             )
         self.relu = nn.ReLU(inplace=True)
@@ -37,7 +37,9 @@ class BaseBlock(nn.Module):
 
 
 class ResBlock(nn.Module):
-    def __init__(self, blocks, in_channels, out_channels, stride, padding=1, dilation=1):
+    def __init__(
+        self, blocks, in_channels, out_channels, stride, padding=1, dilation=1
+    ):
         super().__init__()
         layers = []
         cur_channels = in_channels
@@ -53,7 +55,7 @@ class ResBlock(nn.Module):
             )
             layers.append(layer)
             stride = 1
-            dilation=1
+            dilation = 1
             cur_channels = out_channels
 
         self.layers = nn.Sequential(*layers)

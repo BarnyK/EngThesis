@@ -13,10 +13,10 @@ from .blocks import (
 
 class Net(nn.Module):
     ## Main module for Network
-    def __init__(self, max_disp=192,no_sdea=False):
+    def __init__(self, max_disp=192, no_sdea=False):
         super().__init__()
         self.maxdisp = max_disp
-        self.feature_extraction = FeatureExtraction(max_disp,no_sdea)
+        self.feature_extraction = FeatureExtraction(max_disp, no_sdea)
 
         self.stacked_hourglass = StackedHourglassModule()
 
@@ -31,7 +31,7 @@ class Net(nn.Module):
         return new_self
 
     def forward(self, left, right):
-        left,right = self.feature_extraction(left,right)
+        left, right = self.feature_extraction(left, right)
 
         # 32 x H/4 x W/4
         cost = self.create_cost_volume(left, right)

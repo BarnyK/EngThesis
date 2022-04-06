@@ -36,6 +36,7 @@ def print_validation(args: dict):
     except TypeError as er:
         print(er)
 
+
 def print_training(args: dict):
     try:
         train, test = index_set(**args)
@@ -50,6 +51,7 @@ def print_training(args: dict):
         print(er)
     except TypeError as er:
         print(er)
+
 
 def test_loader(args: dict):
     from tqdm import tqdm

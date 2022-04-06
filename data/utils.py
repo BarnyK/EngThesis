@@ -9,6 +9,8 @@ normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
 
 def check_paths_exist(*args):
     for a in args:
+        if not a:
+            raise ValueError("Specified path is None")
         if not path.exists(a):
             raise ValueError(f"path {a} does not exist")
 
@@ -23,6 +25,7 @@ def pad_image(input: torch.Tensor):
 
 def pad_image_reverse(input: torch.Tensor, original_shape):
     return TF.crop(input, *original_shape)
+
 
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
     """

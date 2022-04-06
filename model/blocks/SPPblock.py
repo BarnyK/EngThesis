@@ -29,7 +29,7 @@ class SPPBlock(nn.Module):
         ## concatenation of all 4 pools + input + skip connection happens here
         concat_channels = pool_output_channels * 4 + input_channels + skip_channels
         self.conv = nn.Sequential(
-            conv2d_norm_relu(concat_channels, 128, 3, 1,1),
+            conv2d_norm_relu(concat_channels, 128, 3, 1, 1),
             nn.Conv2d(128, 32, 1, 1),
         )
 
