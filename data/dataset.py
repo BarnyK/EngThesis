@@ -9,10 +9,15 @@ from .file_handling import read_file
 
 class DisparityDataset(Dataset):
     def __init__(
-        self, paths: list[tuple[str, str, str]], random_crop=True, crop_shape=(256, 512)
+        self,
+        paths: list[tuple[str, str, str]],
+        random_crop=True,
+        crop_shape=(256, 512),
+        return_paths: bool = False,
     ):
         self.image_paths = paths[:]
         self.random_crop = random_crop
+        self.return_paths = return_paths
         if random_crop:
             self.crop_shape = crop_shape
         self.__to_tensor = transforms.ToTensor()
@@ -45,6 +50,8 @@ class DisparityDataset(Dataset):
             disp.squeeze_(0)
             disp = disp.float() / 256
 
+        if self.return_paths:
+            return left, right, disp, self.image_paths[index]
         return left, right, disp
 
     def to_tensor(self, input):
