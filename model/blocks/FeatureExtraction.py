@@ -33,16 +33,12 @@ class FeatureExtraction(nn.Module):
             self.resblock3 = ResBlock(3, 64, 128, 1, dilation=1)
             self.resblock4 = ResBlock(3, 128, 128, 1, dilation=2)
         else:
-            self.sdea0 = nn.Sequential(
-                SDEABlock(64, 128, max_disp),
-                SDEABlock(128, 128, max_disp),
-            )
-            self.sdea0_0 = SDEABlock(64, 128, max_disp)
-            self.sdea0_1 = SDEABlock(128, 128, max_disp)
-            self.sdea0_2 = SDEABlock(128, 128, max_disp)
-            self.sdea1_0 = SDEABlock(128, 128, max_disp)
-            self.sdea1_1 = SDEABlock(128, 128, max_disp)
-            self.sdea1_2 = SDEABlock(128, 128, max_disp)
+            self.sdea0_0 = SDEABlock(64, 128, max_disp//4)
+            self.sdea0_1 = SDEABlock(128, 128, max_disp//4)
+            self.sdea0_2 = SDEABlock(128, 128, max_disp//4)
+            self.sdea1_0 = SDEABlock(128, 128, max_disp//4)
+            self.sdea1_1 = SDEABlock(128, 128, max_disp//4)
+            self.sdea1_2 = SDEABlock(128, 128, max_disp//4)
 
         self.spp = SPPBlock(128, 32, 64)
 
