@@ -26,8 +26,8 @@ def train(
     save_file: str,
     log_file: str,
     eval_each_epoch: int,
-    no_sdea:bool,
-    iters_to_accumulate:int,
+    no_sdea: bool,
+    iters_to_accumulate: int,
     **kwargs,
 ):
     torch.manual_seed(1111)
@@ -37,7 +37,6 @@ def train(
         if log_file and path.isdir(log_file):
             log_file = path.join(log_file, f"{save_filename}.log")
 
-
     def save_log(epoch, train_metrics: Metrics, test_metrics: Metrics):
         """
         Function for appending metrics to log file
@@ -46,8 +45,8 @@ def train(
         tm = test_metrics
         if log_file:
             log = f"{save_filename},{dataset_name},{learning_rate},{epoch},"
-            log += f"{trm.time_taken},{trm.running_loss_mean},{trm.epe_avg},{trm.e3p_avg},"
-            log += f"{tm.time_taken},{tm.running_loss_mean},{tm.epe_avg},{tm.e3p_avg}\n"
+            log += f"{trm.time_taken},{trm.running_loss},{trm.epe},{trm.e3p},"
+            log += f"{tm.time_taken},{tm.running_loss},{tm.epe},{tm.e3p}\n"
             with open(log_file, "a") as f:
                 f.write(log)
 
@@ -95,7 +94,15 @@ def train(
             print(f"Epoch {epoch+1} out of {epochs}")
             print("Training loop")
 
-            trm = training_loop(net, trainloader, trainset, optimizer, scaler, device, iters_to_accumulate)
+            trm = training_loop(
+                net,
+                trainloader,
+                trainset,
+                optimizer,
+                scaler,
+                device,
+                iters_to_accumulate,
+            )
             if save_file:
                 save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
 
@@ -119,13 +126,17 @@ def train(
 
 
 def prepare_model_optim_scaler(
-    load_file: str, device: torch.device, max_disp: int, no_sdea:bool, learning_rate: float
+    load_file: str,
+    device: torch.device,
+    max_disp: int,
+    no_sdea: bool,
+    learning_rate: float,
 ):
     model_state, optim_state, scaler_state = None, None, None
     if load_file:
         model_state, optim_state, scaler_state = load_model(load_file)
 
-    net = Net(max_disp,no_sdea).to(device)
+    net = Net(max_disp, no_sdea).to(device)
     if model_state:
         net.load_state_dict(model_state)
 
@@ -156,10 +167,10 @@ def training_loop(
     epe_sum = 0
     e3p_sum = 0
     for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
-        left = left.to(device,non_blocking=True)
-        right = right.to(device,non_blocking=True)
+        left = left.to(device, non_blocking=True)
+        right = right.to(device, non_blocking=True)
         mask = gt > 0
-        gt = gt.to(device,non_blocking=True)
+        gt = gt.to(device, non_blocking=True)
 
         with autocast(enabled=device.type == "cuda"):
             d1, d2, d3 = net(left, right)
@@ -167,18 +178,17 @@ def training_loop(
                 0.5 * F.smooth_l1_loss(d1[mask], gt[mask])
                 + 0.7 * F.smooth_l1_loss(d2[mask], gt[mask])
                 + F.smooth_l1_loss(d3[mask], gt[mask])
-            ) 
+            )
         scaler.scale(loss / iters_to_accumulate).backward()
-        if (i +1 ) % iters_to_accumulate == 0:
+        if (i + 1) % iters_to_accumulate == 0:
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad(True)
 
-
         # Metrics
+        rl += loss.item() * d3.shape[0]
         epe_sum += error_epe(gt, d3) * d3.shape[0]
         e3p_sum += error_3p(gt, d3) * d3.shape[0]
-        rl += loss.item() * d3.shape[0]
 
     train_time = time() - st
     rl_avg = rl / len(trainset)
@@ -204,7 +214,7 @@ def testing_loop(
         left, og = pad_image(left)
         right, og = pad_image(right)
         with torch.inference_mode():
-            with autocast(device.type=="cuda"):
+            with autocast(device.type == "cuda"):
                 d = net(left, right)
                 d = pad_image_reverse(d, og)
                 epe = error_epe(gt, d) * d.shape[0]
@@ -225,13 +235,13 @@ def testing_loop(
 @dataclass
 class Metrics:
     time_taken: float = -1
-    running_loss_mean: float = -1
-    epe_avg: float = -1
-    e3p_avg: float = -1
+    running_loss: float = -1
+    epe: float = -1
+    e3p: float = -1
 
     def __str__(self):
         res = f"Time taken: {self.time_taken:.2f}s\n"
-        res += f"Running loss: {self.running_loss_mean:.4f}\n"
-        res += f"Endpoint error: {self.epe_avg:.4f}\n"
-        res += f"3 pixel error: {self.e3p_avg:.4f}"
+        res += f"Running loss: {self.running_loss:.4f}\n"
+        res += f"Endpoint error: {self.epe:.4f}\n"
+        res += f"3 pixel error: {self.e3p:.4f}"
         return res
