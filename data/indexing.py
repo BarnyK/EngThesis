@@ -1,5 +1,7 @@
 from os import path
 from os import listdir
+
+import data
 from .indexing_kitty import index_kitti2012, index_kitti2015, combine_kitti
 from .utils import check_paths_exist
 from .indexing_sceneflow import (
@@ -24,6 +26,13 @@ def index_set(dataset_name, **kwargs):
     """
     Passes arguments to correct indexing function depending on the name
     """
+    if (
+        dataset_name in ["sceneflow", "kittis"]
+        and kwargs.get("validation_length", -1) != -1
+    ):
+        raise ValueError(
+            "Combined datasets sceneflow and kittis do not support validation_length, please use split"
+        )
     indexers = {
         "kitti2012": index_kitti2012,
         "kitti2015": index_kitti2015,
