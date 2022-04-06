@@ -1,6 +1,7 @@
 import argparse
 from data import SUPPORTED_DATASETS
 from procedures import evaluate, train
+from procedures.evaluation_mode import eval_dataset
 from procedures.test_mode import test_indexes, print_validation, test_loader,print_training
 # Modes:
 #   Train - training the network
@@ -17,7 +18,7 @@ def main():
     datasets_group.add_argument("--root","--image-root",dest="root_images",action="store",type=str,help="Root folder with dataset")
     datasets_group.add_argument("--disparity-root",dest="root_disparity",action="store",type=str,help="Folder with disparity for sceneflow sets")
     datasets_group.add_argument("--split",dest="split",action="store",type=float,default=0.2,help="Percentage of dataset used for validation. Doesn't affect Flyingthings3d which is pre-split.")
-    datasets_group.add_argument("--validation-length",dest="validation_length",action="store",type=int,default=0,help="Number of images used for validation. If set 'split' is ignored")
+    datasets_group.add_argument("--validation-length",dest="validation_length",action="store",type=int,default=-1,help="Number of images used for validation. If set 'split' is ignored")
     datasets_group.add_argument("--occlussion",dest="occlussion",action="store_true",help="If occludded disparity should be used for Kitti sets")
     datasets_group.add_argument("--colored",dest="colored",action="store_true",help="If colored input should be used for Kitti2012 set")
     datasets_group.add_argument("--no-webp",dest="webp",action="store_false",help="If dataset is not using webp in sceneflow sets")
@@ -81,9 +82,15 @@ def setupTest(args: argparse.Namespace):
     return
 
 
-def setupEvaluation(args):
+def setupEvaluation(args: argparse.Namespace):
     print("Evaluation")
     kwargs = vars(args)
+    if not kwargs.get("max_disp"):
+        print("max disparity not defined, please use --max-disp flag")
+        return
+    if dn := kwargs.get("dataset_name"):
+        return eval_dataset(**kwargs)
+        
     if not kwargs.get("left_image"):
         print("left image path not defined, please use --left-image flag")
         return
