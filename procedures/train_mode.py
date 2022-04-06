@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from os import path
 from pickle import UnpicklingError
 from time import time
 
@@ -13,6 +12,8 @@ from model.utils import choose_device, load_model, save_model
 from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+
+from .utils import Logger, Metrics, create_logger
 
 
 def train(
@@ -28,27 +29,16 @@ def train(
     eval_each_epoch: int,
     no_sdea: bool,
     iters_to_accumulate: int,
+    iters_per_log: int,
     **kwargs,
 ):
     torch.manual_seed(1111)
 
-    if save_file is not None:
-        save_filename = path.basename(save_file)
-        if log_file and path.isdir(log_file):
-            log_file = path.join(log_file, f"{save_filename}.log")
-
-    def save_log(epoch, train_metrics: Metrics, test_metrics: Metrics):
-        """
-        Function for appending metrics to log file
-        """
-        trm = train_metrics
-        tm = test_metrics
-        if log_file:
-            log = f"{save_filename},{dataset_name},{learning_rate},{epoch},"
-            log += f"{trm.time_taken},{trm.running_loss},{trm.epe},{trm.e3p},"
-            log += f"{tm.time_taken},{tm.running_loss},{tm.epe},{tm.e3p}\n"
-            with open(log_file, "a") as f:
-                f.write(log)
+    try:
+        logger = create_logger(log_file, save_file, dataset_name, learning_rate)
+    except ValueError as er:
+        print(er)
+        return
 
     try:
         device = choose_device(cpu)
@@ -97,11 +87,13 @@ def train(
             trm = training_loop(
                 net,
                 trainloader,
-                trainset,
                 optimizer,
                 scaler,
                 device,
+                epoch,
                 iters_to_accumulate,
+                logger,
+                iters_per_log,
             )
             if save_file:
                 save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
@@ -116,7 +108,7 @@ def train(
                 print("Test metrics:")
                 print(tm)
 
-            save_log(epoch, trm, tm)
+            logger.append("epoch", epoch, trm, tm)
     except KeyboardInterrupt:
         print("Received KeyboardInterrupt, closing")
         return
@@ -155,21 +147,21 @@ def prepare_model_optim_scaler(
 def training_loop(
     net: Net,
     trainloader: DataLoader,
-    trainset: DisparityDataset,
     optimizer: torch.optim.Optimizer,
     scaler: GradScaler,
     device: torch.device,
-    iters_to_accumulate: int = 5,
+    current_epoch: int,
+    iters_to_accumulate: int,
+    logger: Logger,
+    iters_per_log: int,
 ):
     net.train()
-    st = time()
-    rl = 0.0
-    epe_sum = 0
-    e3p_sum = 0
+    iter_metric = Metrics()
+    epoch_metric = Metrics()
     for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
         left = left.to(device, non_blocking=True)
         right = right.to(device, non_blocking=True)
-        mask = gt > 0
+        mask = torch.logical_and(gt < net.maxdisp, gt > 0)
         gt = gt.to(device, non_blocking=True)
 
         with autocast(enabled=device.type == "cuda"):
@@ -186,62 +178,46 @@ def training_loop(
             optimizer.zero_grad(True)
 
         # Metrics
-        rl += loss.item() * d3.shape[0]
-        epe_sum += error_epe(gt, d3) * d3.shape[0]
-        e3p_sum += error_3p(gt, d3) * d3.shape[0]
+        items = gt.shape[0] 
+        loss = loss.item() * items
+        epe = error_epe(gt, d3,net.maxdisp) * items
+        e3p = error_3p(gt, d3,net.maxdisp) * items
 
-    train_time = time() - st
-    rl_avg = rl / len(trainset)
-    epe_avg = epe_sum / len(trainset)
-    e3p_avg = e3p_sum / len(trainset)
-    return Metrics(train_time, rl_avg, epe_avg, e3p_avg)
+        epoch_metric.add(loss,epe,e3p,items,1)
+        iter_metric.add(loss,epe,e3p,items,1)
+
+        if (iter_metric.iters % iters_per_log  == 0) or (i+1 == len(trainloader)):
+            iter_metric.end()
+            logger.append("iter",current_epoch,iter_metric)
+            iter_metric = Metrics()
+
+    epoch_metric.end()
+    return epoch_metric
 
 
 def testing_loop(
     net: Net, testloader: DataLoader, testset: DisparityDataset, device: torch.device
 ):
     net.eval()
-    st = time()
-    rl = 0.0
-    epe_sum = 0.0
-    e3p_sum = 0.0
+    eval_metrics = Metrics()
     print("Evaluating on test set")
     for i, (left, right, gt) in tqdm(enumerate(testloader), total=len(testloader)):
         left = left.to(device)
         right = right.to(device)
-        mask = gt != 0
+        mask = torch.logical_and(gt < net.maxdisp, gt > 0)
         gt = gt.to(device)
         left, og = pad_image(left)
         right, og = pad_image(right)
         with torch.inference_mode():
             with autocast(device.type == "cuda"):
                 d = net(left, right)
-                d = pad_image_reverse(d, og)
-                epe = error_epe(gt, d) * d.shape[0]
-                e3p = error_3p(gt, d) * d.shape[0]
-                loss = F.smooth_l1_loss(d[mask], gt[mask])
+            d = pad_image_reverse(d, og)
+
+            items = gt.shape[0]
+            epe = error_epe(gt, d,net.maxdisp) * items
+            e3p = error_3p(gt, d,net.maxdisp) * items
+            loss = F.smooth_l1_loss(d[mask], gt[mask]).item() * items
             # metrics
-            rl += loss * d.shape[0]
-            epe_sum += epe * d.shape[0]
-            e3p_sum += e3p * d.shape[0]
-
-    train_time = time() - st
-    rl_avg = rl / len(testset)
-    epe_avg = epe_sum / len(testset)
-    e3p_avg = e3p_sum / len(testset)
-    return Metrics(train_time, rl_avg, epe_avg, e3p_avg)
-
-
-@dataclass
-class Metrics:
-    time_taken: float = -1
-    running_loss: float = -1
-    epe: float = -1
-    e3p: float = -1
-
-    def __str__(self):
-        res = f"Time taken: {self.time_taken:.2f}s\n"
-        res += f"Running loss: {self.running_loss:.4f}\n"
-        res += f"Endpoint error: {self.epe:.4f}\n"
-        res += f"3 pixel error: {self.e3p:.4f}"
-        return res
+            eval_metrics.add(loss,epe,e3p,items,1)
+    eval_metrics.end()
+    return eval_metrics

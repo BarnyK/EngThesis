@@ -61,23 +61,23 @@ def evaluate(
     right, _ = pad_image(right)
 
     # Load model
-    m = Net(max_disp, no_sdea)
+    net = Net(max_disp, no_sdea)
     if load_file:
         state, *_ = load_model(load_file)
         if state:
-            m.load_state_dict(state)
+            net.load_state_dict(state)
         else:
             print("Couldn't load model from given file")
             return
 
-    m.to(device)
-    m.eval()
+    net.to(device)
+    net.eval()
 
     # Pass through the network
     with torch.inference_mode():
-        _ = m.forward(left, right)
+        _ = net.forward(left, right)
         st = time.time()
-        disp = m.forward(left, right)
+        disp = net.forward(left, right)
         et = time.time()
         print("Pass took: ", round(et - st, 2), "seconds")
 
@@ -91,8 +91,8 @@ def evaluate(
             gt = gt.unsqueeze(0)
         gt = gt.to(device)
         if gt.shape == disp.shape:
-            print("EPE:", error_epe(gt, disp))
-            print("3p:", error_3p(gt, disp))
+            print("EPE:", error_epe(gt, disp,net.maxdisp))
+            print("3p:", error_3p(gt, disp,net.maxdisp))
         else:
             print(
                 "Can't create measures if output disparity is different shape than ground truth"
@@ -181,8 +181,8 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kw
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
-            epe = error_epe(gt, prediction)
-            e3p = error_3p(gt, prediction)
+            epe = error_epe(gt, prediction,max_disp)
+            e3p = error_3p(gt, prediction,max_disp)
             print("Time taken:", time_taken)
             print("Loss: ", loss)
             print("Endpoint error:", epe)
