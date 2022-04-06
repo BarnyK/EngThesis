@@ -13,15 +13,17 @@ def index_driving(
     webp=True,
     disparity_side="left",
     split=0.2,
-    validation_length=0,
+    validation_length=-1,
     **kwargs,
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
-    if not validation_length and (split < 0 or split > 1):
+    if validation_length < 0 and (split < 0 or split > 1):
         raise ValueError("split should be a float between 0 and 1")
-    if validation_length < 0:
-        raise ValueError("validation_length should not be lower than 0")
+    if not root_images:
+        raise ValueError("specified image root path is None or doesn't exist")
+    if not root_images:
+        raise ValueError("specified disparity root path is None or doesn't exist")
     maindir = "frames_cleanpass_webp"
     extension = "webp"
     if not webp:
@@ -68,6 +70,10 @@ def index_flyingthings(
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
+    if not root_images:
+        raise ValueError("specified image root path is None or doesn't exist")
+    if not root_images:
+        raise ValueError("specified disparity root path is None or doesn't exist")
 
     maindir = "frames_cleanpass_webp"
     extension = "webp"
@@ -102,15 +108,18 @@ def index_monkaa(
     webp=True,
     disparity_side="left",
     split=0.8,
-    validation_length=0,
+    validation_length=-1,
     **kwargs,
 ):
     if disparity_side not in ("left", "right"):
         raise ValueError("disparity_side should be either 'left' or 'right'")
-    if not validation_length and (split < 0 or split > 1):
+    if validation_length < 0 and (split < 0 or split > 1):
         raise ValueError("split should be a float between 0 and 1")
-    if validation_length < 0:
-        raise ValueError("validation_length should not be lower than 0")
+    if not root_images:
+        raise ValueError("specified image root path is None or doesn't exist")
+    if not root_images:
+        raise ValueError("specified disparity root path is None or doesn't exist")
+
     maindir = "frames_cleanpass_webp"
     extension = "webp"
     if not webp:

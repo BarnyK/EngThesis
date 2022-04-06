@@ -5,7 +5,7 @@ from torch import Generator
 
 
 def index_kitti2012(
-    root, occlussion=True, split=0.2, colored=True, validation_length=0, **kwargs
+    root, occlussion=True, split=0.2, colored=True, validation_length=-1, **kwargs
 ):
     disp_folder = "disp_occ"
     if not occlussion:
@@ -17,7 +17,7 @@ def index_kitti2012(
     )
 
 
-def index_kitti2015(root, occlussion=True, split=0.2, validation_length=0, **kwargs):
+def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kwargs):
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
@@ -33,12 +33,11 @@ def __index_kitti(
     disp_folder,
     input_extension="png",
     split=0.2,
-    validation_length=0,
+    validation_length=-1,
 ):
-    if not validation_length and split < 0 or split > 1:
+    if validation_length < 0 and split < 0 or split > 1:
         raise ValueError("split should be a float between 0 and 1")
-    if validation_length < 0:
-        raise ValueError("validation_length should not be lower than 0")
+
     left = path.join(root, "training", left_folder)
     right = path.join(root, "training", right_folder)
     disparity = path.join(root, "training", disp_folder)
