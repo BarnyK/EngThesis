@@ -36,6 +36,7 @@ def main():
     train_group.add_argument("--learning-rate",dest="learning_rate",type=float,help="Learning rate for the optimizer to start with")
     train_group.add_argument("--eval-each-epoch",dest="eval_each_epoch",type=int,default=1,help="How often evaluation on test set should be done")
     train_group.add_argument("--log-file",dest="log_file",type=str,help="File to which data obtained during training is saved")
+    train_group.add_argument("--iters-to-accumulate",dest="iters_to_accumulate",type=int,default=1,help="How mnay iterations should be done before each backwards pass")
 
     eval_group = parser.add_argument_group("Evaluation","Arguments used for evaluation mode")
     eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation")

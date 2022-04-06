@@ -27,6 +27,7 @@ def train(
     log_file: str,
     eval_each_epoch: int,
     no_sdea:bool,
+    iters_to_accumulate:int,
     **kwargs,
 ):
     torch.manual_seed(1111)
@@ -94,7 +95,7 @@ def train(
             print(f"Epoch {epoch+1} out of {epochs}")
             print("Training loop")
 
-            trm = training_loop(net, trainloader, trainset, optimizer, scaler, device)
+            trm = training_loop(net, trainloader, trainset, optimizer, scaler, device, iters_to_accumulate)
             if save_file:
                 save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
 
@@ -147,6 +148,7 @@ def training_loop(
     optimizer: torch.optim.Optimizer,
     scaler: GradScaler,
     device: torch.device,
+    iters_to_accumulate: int = 5,
 ):
     net.train()
     st = time()
@@ -154,7 +156,6 @@ def training_loop(
     epe_sum = 0
     e3p_sum = 0
     for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
-        optimizer.zero_grad(True)
         left = left.to(device,non_blocking=True)
         right = right.to(device,non_blocking=True)
         mask = gt > 0
@@ -166,10 +167,13 @@ def training_loop(
                 0.5 * F.smooth_l1_loss(d1[mask], gt[mask])
                 + 0.7 * F.smooth_l1_loss(d2[mask], gt[mask])
                 + F.smooth_l1_loss(d3[mask], gt[mask])
-            )
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update()
+            ) 
+        scaler.scale(loss / iters_to_accumulate).backward()
+        if (i +1 ) % iters_to_accumulate == 0:
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad(True)
+
 
         # Metrics
         epe_sum += error_epe(gt, d3) * d3.shape[0]
