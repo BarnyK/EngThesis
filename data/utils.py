@@ -1,5 +1,4 @@
 from os import path, listdir
-from turtle import width
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 import torch

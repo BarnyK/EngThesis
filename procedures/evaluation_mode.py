@@ -1,24 +1,25 @@
-import enum
-from json import load
 import os
-from pickle import UnpicklingError
 import time
-from PIL import Image
+from os import path
+from pickle import UnpicklingError
+
 import numpy as np
-from torch.cuda.amp import autocast
 import torch
-from data.utils import check_paths_exist, pad_image, pad_image_reverse, normalize
-from data.file_handling import read_file
+import torch.nn.functional as F
 from data.dataset import DisparityDataset
+from data.file_handling import read_file
 from data.indexing import index_set
-from torch.utils.data import DataLoader
+from data.utils import (check_paths_exist, normalize, pad_image,
+                        pad_image_reverse)
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model
+from PIL import Image
+from torch.cuda.amp import autocast
+from torch.utils.data import DataLoader
 from torchvision import transforms
-import torch.nn.functional as F
-from os import path
-from procedures.train_mode import prepare_model_optim_scaler, Metrics
+
+from procedures.train_mode import prepare_model_optim_scaler
 
 
 def evaluate(
