@@ -29,7 +29,7 @@ def pad_image(input: torch.Tensor):
     h_pad = 16 - h % 16
     w_pad = 16 - w % 16
     # left, top, right, bottom
-    res = TF.pad(input, (0, h_pad, w_pad, 0))
+    res = TF.pad(input, (w_pad, h_pad, 0, 0))
     return res, pad_parameters(h_pad, w_pad, h, w)
 
 
