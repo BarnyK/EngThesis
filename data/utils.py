@@ -23,17 +23,6 @@ class pad_parameters:
     height: int
     width: int
 
-# from torch.nn.functional import interpolate
-# def pad_image(input: torch.Tensor):
-#     *rest, h, w = input.shape
-#     desired_h = h + (16 - h % 16)
-#     desired_w = w + (16 - w % 16)
-#     y = interpolate(input,(desired_h,desired_w),mode="bilinear")
-#     return y, (h,w)
-
-# def pad_image_reverse(input: torch.Tensor, params):
-#     return interpolate(input,params,mode="bilinear")
-
 def pad_image(input: torch.Tensor):
     *_, h, w = input.shape
     h_pad = 16 - h % 16
