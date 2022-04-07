@@ -3,8 +3,10 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from .utils import IMAGENET_NORMALIZATION_PARAMS
+from .utils import IMAGENET_NORMALIZATION_PARAMS, imagenet_normalization
 from .file_handling import read_file
+
+__to_tensor = transforms.ToTensor()
 
 
 class DisparityDataset(Dataset):
@@ -58,3 +60,56 @@ class DisparityDataset(Dataset):
         if not isinstance(input, torch.Tensor):
             return self.__to_tensor(input)
         return input
+
+
+def read_and_prepare(
+    left: str,
+    right: str,
+    disparity: str,
+    random_crop=False,
+    crop_shape=(256, 512),
+    normalize=True,
+):
+    left_data = read_file(left)
+    right_data = read_file(right)
+
+    if random_crop:
+        i, j, w, h = transforms.RandomCrop.get_params(left_data, crop_shape)
+        left_data = TF.crop(left_data, i, j, w, h)
+        right_data = TF.crop(right_data, i, j, w, h)
+
+    left_data = __to_tensor(left_data)
+    right_data = __to_tensor(right_data)
+
+    if normalize:
+        left_data = imagenet_normalization(left_data)
+        right_data = imagenet_normalization(right_data)
+
+    left_data.unsqueeze_(0)
+    right_data.unsqueeze_(0)
+
+    if not disparity:
+        return left_data, right_data, None
+
+    disp_data = read_file(disparity, disparity=True)
+
+    if random_crop:
+        disp_data = TF.crop(disp_data, i, j, w, h)
+
+    if not isinstance(disp_data, torch.Tensor):
+        disp_data = __to_tensor(disp_data)
+        disp_data = disp_data.float() / 256
+
+    disp_data.unsqueeze_(0)
+    return left_data, right_data, disp_data
+
+def assert_correct_shape(input: torch.Tensor):
+    *_,h,w = input.shape
+    if h < 256:
+        raise AssertionError("height of an image below 256 pixels")
+    if w < 256:
+        raise AssertionError("width of an image below 256 pixels")
+    if h%16 != 0:
+        raise AssertionError("height of an image not divisible by 4")
+    if w%16 != 0:
+        raise AssertionError("width of an image not divisible by 4")

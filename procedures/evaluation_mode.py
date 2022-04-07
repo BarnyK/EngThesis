@@ -6,11 +6,15 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
-from data.dataset import DisparityDataset
+from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
 from data.file_handling import read_file
 from data.indexing import index_set
-from data.utils import (check_paths_exist, normalize, pad_image,
-                        pad_image_reverse)
+from data.utils import (
+    check_paths_exist,
+    imagenet_normalization,
+    pad_image,
+    pad_image_reverse,
+)
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model
@@ -21,8 +25,7 @@ from torchvision import transforms
 
 from procedures.train_mode import prepare_model_optim_scaler
 
-
-def evaluate(
+def evaluate_one(
     left_image: str,
     right_image: str,
     result_image: str,
@@ -33,10 +36,18 @@ def evaluate(
     no_sdea: bool,
     **kwargs,
 ):
-    if max_disp is None or max_disp <= 0:
-        raise ValueError("max_disp must be integer bigger than 0")
-
-    check_paths_exist(left_image, right_image)
+    try:
+        if disparity_image:
+            check_paths_exist(left_image,right_image,disparity_image)
+        else:
+            check_paths_exist(left_image,right_image)
+    except ValueError as er:
+        print(er)
+        return
+    
+    if max_disp <= 0 or max_disp % 4 != 0:
+        print("max_disp must be integer bigger than 0 divisible by 4")
+        return
 
     try:
         device = choose_device(cpu)
@@ -44,24 +55,19 @@ def evaluate(
         print(ex)
         return
 
-    # Load and pre-process files
-    left = read_file(left_image)
-    right = read_file(right_image)
-    to_tensor = transforms.ToTensor()
-
-    left = to_tensor(left)
-    right = to_tensor(right)
-
-    left = normalize(left).unsqueeze(0).to(device)
-    right = normalize(right).unsqueeze(0).to(device)
-
-    if left.shape != right.shape:
-        print("Images of different shapes can't be passed to the network")
+    try:
+        left,right,gt = read_and_prepare(left_image,right_image,disparity_image)
+        
+    except Exception as ex:
+        print(ex)
         return
+
     left, s = pad_image(left)
     right, _ = pad_image(right)
 
-    # Load model
+    assert_correct_shape(left)
+    assert_correct_shape(right)
+
     net = Net(max_disp, no_sdea)
     if load_file:
         state, *_ = load_model(load_file)
@@ -73,42 +79,27 @@ def evaluate(
 
     net.to(device)
     net.eval()
-
-    # Pass through the network
     with torch.inference_mode():
-        _ = net.forward(left, right)
-        st = time.time()
-        disp = net.forward(left, right)
-        et = time.time()
-        print("Pass took: ", round(et - st, 2), "seconds")
+        prediction = net(left,right)
+    
+    pred = pad_image_reverse(prediction,s)
 
-    # Create stats
-    disp = pad_image_reverse(disp, s)
-    if disparity_image and os.path.exists(disparity_image):
-        gt = read_file(disparity_image, disparity=True)
-        if not isinstance(gt, torch.Tensor):
-            gt = to_tensor(gt).float() / 256
-        else:
-            gt = gt.unsqueeze(0)
-        gt = gt.to(device)
-        if gt.shape == disp.shape:
-            print("EPE:", error_epe(gt, disp,net.maxdisp))
-            print("3p:", error_3p(gt, disp,net.maxdisp))
-        else:
-            print(
-                "Can't create measures if output disparity is different shape than ground truth"
-            )
-
-    # Save image
-    disp = disp.squeeze(0)
-    res = np.array(disp.cpu(), dtype=np.uint8)
-    disp_image = Image.fromarray(res)
-    os.makedirs(os.path.dirname(result_image), exist_ok=True)
-    if not result_image.lower().endswith(".png"):
-        result_image += ".png"
-    disp_image.save(result_image)
-    print(f"Saved file to {result_image}")
-
+    if gt is not None:
+        epe = error_epe(gt,pred,max_disp)
+        e3p = error_3p(gt,pred,max_disp)
+        print("Endpoint error: ", epe)
+        print("3 pixel error: ", e3p)
+    
+    if result_image:
+        pred = pred.squeeze(0)
+        res = np.array(pred.cpu(), dtype=np.uint8)
+        prediction_image = Image.fromarray(res)
+        os.makedirs(os.path.dirname(result_image), exist_ok=True)
+        if not result_image.lower().endswith(".png"):
+            result_image += ".png"
+        prediction_image.save(result_image)
+        print(f"Saved file to {result_image}")
+    
 
 def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kwargs):
     try:
@@ -182,8 +173,8 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kw
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
-            epe = error_epe(gt, prediction,max_disp)
-            e3p = error_3p(gt, prediction,max_disp)
+            epe = error_epe(gt, prediction, max_disp)
+            e3p = error_3p(gt, prediction, max_disp)
             print("Time taken:", time_taken)
             print("Loss: ", loss)
             print("Endpoint error:", epe)

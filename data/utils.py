@@ -5,7 +5,7 @@ import torch
 from dataclasses import dataclass
 
 IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
-normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
+imagenet_normalization = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
 
 
 def check_paths_exist(*args):
@@ -20,23 +20,33 @@ def check_paths_exist(*args):
 class pad_parameters:
     h_pad: int
     w_pad: int
-    heigh: int
+    height: int
     width: int
 
+# from torch.nn.functional import interpolate
+# def pad_image(input: torch.Tensor):
+#     *rest, h, w = input.shape
+#     desired_h = h + (16 - h % 16)
+#     desired_w = w + (16 - w % 16)
+#     y = interpolate(input,(desired_h,desired_w),mode="bilinear")
+#     return y, (h,w)
+
+# def pad_image_reverse(input: torch.Tensor, params):
+#     return interpolate(input,params,mode="bilinear")
 
 def pad_image(input: torch.Tensor):
     *_, h, w = input.shape
     h_pad = 16 - h % 16
     w_pad = 16 - w % 16
     # left, top, right, bottom
-    res = TF.pad(input, (w_pad, h_pad, 0, 0))
+    res = TF.pad(input, (0, h_pad, w_pad, 0))
     return res, pad_parameters(h_pad, w_pad, h, w)
 
 
 def pad_image_reverse(input: torch.Tensor, params: pad_parameters):
     p = params
     # top, left, heigh, width
-    return TF.crop(input, p.h_pad, p.w_pad, p.heigh, p.width)
+    return TF.crop(input, p.h_pad, 0, p.height, p.width)
 
 
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
