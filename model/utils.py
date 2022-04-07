@@ -1,4 +1,3 @@
-from lib2to3.pgen2.token import OP
 import torch
 from torch import nn
 from torch.optim import Optimizer
