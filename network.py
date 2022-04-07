@@ -45,7 +45,7 @@ def main():
     eval_group.add_argument("--right-image",dest="right_image",type=str, help="Path to right image for evaluation")
     eval_group.add_argument("--disparity-image",dest="disparity_image",type=str, help="Path to disparity image for evaluation")
     eval_group.add_argument("--result-image",dest="result_image",type=str, help="Path under which the result will be saved")
-    eval_group.add_argument("--only-testset",dest="only_testset",type=bool,action="store_true",help="Whether dataset validation should be done only on testset or on both")
+    eval_group.add_argument("--only-testset",dest="only_testset",action="store_true",help="Whether dataset validation should be done only on testset or on both")
 
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
