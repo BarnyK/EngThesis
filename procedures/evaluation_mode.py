@@ -165,7 +165,7 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kw
         for i, (left, right, gt, paths) in enumerate(loader):
             print(i, paths[0][0])
 
-            left, original_shape = pad_image(left)
+            left, pad_params = pad_image(left)
             right, _ = pad_image(right)
 
             left = left.to(device)
@@ -177,7 +177,7 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kw
                 st = time.time()
                 prediction = net(left, right)
                 et = time.time()
-            prediction = pad_image_reverse(prediction, original_shape)
+            prediction = pad_image_reverse(prediction, pad_params)
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()

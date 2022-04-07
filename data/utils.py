@@ -1,7 +1,9 @@
 from os import path, listdir
+from turtle import width
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 import torch
+from dataclasses import dataclass
 
 IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
@@ -15,16 +17,27 @@ def check_paths_exist(*args):
             raise ValueError(f"path {a} does not exist")
 
 
+@dataclass
+class pad_parameters:
+    h_pad: int
+    w_pad: int
+    heigh: int
+    width: int
+
+
 def pad_image(input: torch.Tensor):
     *_, h, w = input.shape
     h_pad = 16 - h % 16
     w_pad = 16 - w % 16
+    # left, top, right, bottom
     res = TF.pad(input, (0, h_pad, w_pad, 0))
-    return res, input.shape
+    return res, pad_parameters(h_pad, w_pad, h, w)
 
 
-def pad_image_reverse(input: torch.Tensor, original_shape):
-    return TF.crop(input, *original_shape)
+def pad_image_reverse(input: torch.Tensor, params: pad_parameters):
+    p = params
+    # top, left, heigh, width
+    return TF.crop(input, p.h_pad, p.w_pad, p.heigh, p.width)
 
 
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
