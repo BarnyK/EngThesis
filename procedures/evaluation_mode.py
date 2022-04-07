@@ -56,7 +56,7 @@ def evaluate_one(
         return
 
     try:
-        left,right,gt = read_and_prepare(left_image,right_image,disparity_image)
+        left,right,gt = read_and_prepare(left_image,right_image,disparity_image,add_dim=True)
         
     except Exception as ex:
         print(ex)
@@ -69,13 +69,17 @@ def evaluate_one(
     assert_correct_shape(right)
 
     net = Net(max_disp, no_sdea)
-    if load_file:
-        state, *_ = load_model(load_file)
-        if state:
-            net.load_state_dict(state)
-        else:
-            print("Couldn't load model from given file")
-            return
+    try:
+        if load_file:
+            state, *_ = load_model(load_file)
+            if state:
+                net.load_state_dict(state)
+            else:
+                print("Couldn't load model from given file")
+                return
+    except FileNotFoundError:
+        print("Given load file doesn't exist")
+        return
 
     net.to(device)
     net.eval()
@@ -108,6 +112,10 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, only
         print(ex)
         return
 
+    if max_disp <= 0 or max_disp % 4 != 0:
+        print("max_disp must be integer bigger than 0 divisible by 4")
+        return
+
     try:
         trainset, testset = index_set(dataset_name, **kwargs)
         trainset = DisparityDataset(trainset, random_crop=False, return_paths=True)
@@ -117,10 +125,10 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, only
             1,
             shuffle=False,
             num_workers=2,
-            pin_memory=True,
+            pin_memory=not cpu,
         )
         testloader = DataLoader(
-            testset, 1, shuffle=False, num_workers=2, pin_memory=True
+            testset, 1, shuffle=False, num_workers=2, pin_memory=not cpu
         )
     except ValueError as er:
         print(er)

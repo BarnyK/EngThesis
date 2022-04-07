@@ -20,6 +20,7 @@ class DisparityDataset(Dataset):
         self.image_paths = paths[:]
         self.random_crop = random_crop
         self.return_paths = return_paths
+        self.crop_shape = None
         if random_crop:
             self.crop_shape = crop_shape
         self.__to_tensor = transforms.ToTensor()
@@ -30,27 +31,9 @@ class DisparityDataset(Dataset):
 
     def __getitem__(self, index: int):
         left, right, disp = self.image_paths[index]
-        left = read_file(left)
-        right = read_file(right)
-        disp = read_file(disp, disparity=True)
-
-        ## Crop
-        if self.random_crop:
-            i, j, w, h = transforms.RandomCrop.get_params(left, (256, 512))
-            left = TF.crop(left, i, j, w, h)
-            right = TF.crop(right, i, j, w, h)
-            disp = TF.crop(disp, i, j, w, h)
-
-        left = self.to_tensor(left)
-        right = self.to_tensor(right)
-        disp = self.to_tensor(disp)
-
-        left = self.normalize(left)
-        right = self.normalize(right)
-
-        if disp.dim() == 3:
-            disp.squeeze_(0)
-            disp = disp.float() / 256
+        left,right, disp = read_and_prepare(
+            left,right,disp,self.random_crop,self.crop_shape,True
+        )
 
         if self.return_paths:
             return left, right, disp, self.image_paths[index]
@@ -69,6 +52,7 @@ def read_and_prepare(
     random_crop=False,
     crop_shape=(256, 512),
     normalize=True,
+    add_dim=False,
 ):
     left_data = read_file(left)
     right_data = read_file(right)
@@ -85,8 +69,9 @@ def read_and_prepare(
         left_data = imagenet_normalization(left_data)
         right_data = imagenet_normalization(right_data)
 
-    left_data.unsqueeze_(0)
-    right_data.unsqueeze_(0)
+    if add_dim:
+        left_data.unsqueeze_(0)
+        right_data.unsqueeze_(0)
 
     if not disparity:
         return left_data, right_data, None
@@ -100,7 +85,8 @@ def read_and_prepare(
         disp_data = __to_tensor(disp_data)
         disp_data = disp_data.float() / 256
 
-    disp_data.unsqueeze_(0)
+    if add_dim:
+        disp_data.unsqueeze_(0)
     return left_data, right_data, disp_data
 
 def assert_correct_shape(input: torch.Tensor):
