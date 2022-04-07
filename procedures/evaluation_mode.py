@@ -101,7 +101,7 @@ def evaluate_one(
         print(f"Saved file to {result_image}")
     
 
-def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kwargs):
+def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, only_testset, **kwargs):
     try:
         device = choose_device(cpu)
     except Exception as ex:
@@ -182,7 +182,8 @@ def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, **kw
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
 
     net.eval()
-    print("Trainset")
-    eval_on_loader(trainloader, "train")
+    if not only_testset:
+        print("Trainset")
+        eval_on_loader(trainloader, "train")
     print("Test set")
     eval_on_loader(testloader, "test")

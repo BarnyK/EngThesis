@@ -1,7 +1,7 @@
 import argparse
 from data import SUPPORTED_DATASETS
-from procedures import evaluate, train
-from procedures.evaluation_mode import eval_dataset
+from procedures.train_mode import train
+from procedures.evaluation_mode import eval_dataset, evaluate_one
 from procedures.test_mode import test_indexes, print_validation, test_loader,print_training
 # Modes:
 #   Train - training the network
@@ -14,7 +14,7 @@ def main():
     parser.add_argument("mode",type=str,choices=["train","evaluate","test"],metavar="mode")
 
     datasets_group = parser.add_argument_group("Dataset", "Arguments used for dataset handling")
-    datasets_group.add_argument("--dataset", dest="dataset_name",choices=SUPPORTED_DATASETS,action="store",help="Dataset used for training")
+    datasets_group.add_argument("--dataset", dest="dataset_name",choices=SUPPORTED_DATASETS,action="store",help="Dataset used for training or evaluation")
     datasets_group.add_argument("--root","--image-root",dest="root_images",action="store",type=str,help="Root folder with dataset")
     datasets_group.add_argument("--disparity-root",dest="root_disparity",action="store",type=str,help="Folder with disparity for sceneflow sets")
     datasets_group.add_argument("--split",dest="split",action="store",type=float,default=0.2,help="Percentage of dataset used for validation. Doesn't affect Flyingthings3d which is pre-split.")
@@ -45,6 +45,7 @@ def main():
     eval_group.add_argument("--right-image",dest="right_image",type=str, help="Path to right image for evaluation")
     eval_group.add_argument("--disparity-image",dest="disparity_image",type=str, help="Path to disparity image for evaluation")
     eval_group.add_argument("--result-image",dest="result_image",type=str, help="Path under which the result will be saved")
+    eval_group.add_argument("--only-testset",dest="only_testset",type=bool,action="store_true",help="Whether dataset validation should be done only on testset or on both")
 
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
     test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
@@ -86,32 +87,20 @@ def setupTest(args: argparse.Namespace):
 def setupEvaluation(args: argparse.Namespace):
     print("Evaluation")
     kwargs = vars(args)
-    if not kwargs.get("max_disp"):
-        print("max disparity not defined, please use --max-disp flag")
-        return
     if dn := kwargs.get("dataset_name"):
         return eval_dataset(**kwargs)
         
-    if not kwargs.get("left_image"):
-        print("left image path not defined, please use --left-image flag")
-        return
-    if not kwargs.get("right_image"):
-        print("right image path not defined, please use --right-image flag")
-        return
-    if not kwargs.get("result_image"):
-        print("result image path not defined, please use --result-image flag")
-        return
-    return evaluate(**kwargs)
+    return evaluate_one(**kwargs)
 
 
 def setupTraining(args):
     kwargs = vars(args)
     print("Training")
     if not kwargs.get("epochs"):
-        print("epochs need to be set, please sue --epochs flag")
+        print("epochs need to be set, please use --epochs flag")
         return
     if not kwargs.get("batch_size"):
-        print("batch size need to be set, please sue --batch-size flag")
+        print("batch size need to be set, please use --batch-size flag")
         return
     return train(**kwargs)
 
