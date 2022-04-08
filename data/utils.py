@@ -23,20 +23,6 @@ class pad_parameters:
     height: int
     width: int
 
-def pad_image(input: torch.Tensor):
-    *_, h, w = input.shape
-    h_pad = 16 - h % 16
-    w_pad = 16 - w % 16
-    # left, top, right, bottom
-    res = TF.pad(input, (0, h_pad, w_pad, 0))
-    return res, pad_parameters(h_pad, w_pad, h, w)
-
-
-def pad_image_reverse(input: torch.Tensor, params: pad_parameters):
-    p = params
-    # top, left, heigh, width
-    return TF.crop(input, p.h_pad, 0, p.height, p.width)
-
 
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
     """
@@ -58,3 +44,18 @@ def match_images_disparities(left_folder, right_folder, disp_folder, input_exten
         ):
             triplets.append((left_image, right_image, disp_file))
     return triplets
+
+
+def pad_image(input: torch.Tensor):
+    *_, h, w = input.shape
+    h_pad = 16 - h % 16
+    w_pad = 16 - w % 16
+    # left, top, right, bottom
+    res = TF.pad(input, (0, h_pad, w_pad, 0))
+    return res, pad_parameters(h_pad, w_pad, h, w)
+
+
+def pad_image_reverse(input: torch.Tensor, params: pad_parameters):
+    p = params
+    # top, left, heigh, width
+    return TF.crop(input, p.h_pad, 0, p.height, p.width)
