@@ -25,7 +25,9 @@ def error_3p(
 
 
 @torch.jit.script
-def error_epe(ground_truth: torch.Tensor, disparity: torch.Tensor, max_disp: int) -> float:
+def error_epe(
+    ground_truth: torch.Tensor, disparity: torch.Tensor, max_disp: int
+) -> float:
     mask = torch.logical_and(ground_truth < max_disp, ground_truth > 0)
     res = torch.abs(disparity - ground_truth)[mask]
     return res.mean().item()

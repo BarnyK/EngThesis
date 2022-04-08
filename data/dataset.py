@@ -31,8 +31,8 @@ class DisparityDataset(Dataset):
 
     def __getitem__(self, index: int):
         left, right, disp = self.image_paths[index]
-        left,right, disp = read_and_prepare(
-            left,right,disp,self.random_crop,self.crop_shape,True
+        left, right, disp = read_and_prepare(
+            left, right, disp, self.random_crop, self.crop_shape, True
         )
 
         if self.return_paths:
@@ -89,13 +89,14 @@ def read_and_prepare(
         disp_data.unsqueeze_(0)
     return left_data, right_data, disp_data
 
+
 def assert_correct_shape(input: torch.Tensor):
-    *_,h,w = input.shape
+    *_, h, w = input.shape
     if h < 256:
         raise AssertionError("height of an image below 256 pixels")
     if w < 256:
         raise AssertionError("width of an image below 256 pixels")
-    if h%16 != 0:
+    if h % 16 != 0:
         raise AssertionError("height of an image not divisible by 4")
-    if w%16 != 0:
+    if w % 16 != 0:
         raise AssertionError("width of an image not divisible by 4")

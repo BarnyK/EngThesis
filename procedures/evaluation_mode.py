@@ -25,6 +25,7 @@ from torchvision import transforms
 
 from procedures.train_mode import prepare_model_optim_scaler
 
+
 def evaluate_one(
     left_image: str,
     right_image: str,
@@ -38,13 +39,13 @@ def evaluate_one(
 ):
     try:
         if disparity_image:
-            check_paths_exist(left_image,right_image,disparity_image)
+            check_paths_exist(left_image, right_image, disparity_image)
         else:
-            check_paths_exist(left_image,right_image)
+            check_paths_exist(left_image, right_image)
     except ValueError as er:
         print(er)
         return
-    
+
     if max_disp <= 0 or max_disp % 4 != 0:
         print("max_disp must be integer bigger than 0 divisible by 4")
         return
@@ -56,8 +57,10 @@ def evaluate_one(
         return
 
     try:
-        left,right,gt = read_and_prepare(left_image,right_image,disparity_image,add_dim=True)
-        
+        left, right, gt = read_and_prepare(
+            left_image, right_image, disparity_image, add_dim=True
+        )
+
     except Exception as ex:
         print(ex)
         return
@@ -84,16 +87,16 @@ def evaluate_one(
     net.to(device)
     net.eval()
     with torch.inference_mode():
-        prediction = net(left,right)
-    
-    pred = pad_image_reverse(prediction,s)
+        prediction = net(left, right)
+
+    pred = pad_image_reverse(prediction, s)
 
     if gt is not None:
-        epe = error_epe(gt,pred,max_disp)
-        e3p = error_3p(gt,pred,max_disp)
+        epe = error_epe(gt, pred, max_disp)
+        e3p = error_3p(gt, pred, max_disp)
         print("Endpoint error: ", epe)
         print("3 pixel error: ", e3p)
-    
+
     if result_image:
         pred = pred.squeeze(0)
         res = np.array(pred.cpu(), dtype=np.uint8)
@@ -103,9 +106,11 @@ def evaluate_one(
             result_image += ".png"
         prediction_image.save(result_image)
         print(f"Saved file to {result_image}")
-    
 
-def eval_dataset(dataset_name, max_disp, cpu, no_sdea, load_file, log_file, only_testset, **kwargs):
+
+def eval_dataset(
+    dataset_name, max_disp, cpu, no_sdea, load_file, log_file, only_testset, **kwargs
+):
     try:
         device = choose_device(cpu)
     except Exception as ex:

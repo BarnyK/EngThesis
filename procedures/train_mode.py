@@ -178,17 +178,17 @@ def training_loop(
             optimizer.zero_grad(True)
 
         # Metrics
-        items = gt.shape[0] 
+        items = gt.shape[0]
         loss = loss.item() * items
-        epe = error_epe(gt, d3,net.maxdisp) * items
-        e3p = error_3p(gt, d3,net.maxdisp) * items
+        epe = error_epe(gt, d3, net.maxdisp) * items
+        e3p = error_3p(gt, d3, net.maxdisp) * items
 
-        epoch_metric.add(loss,epe,e3p,items,1)
-        iter_metric.add(loss,epe,e3p,items,1)
+        epoch_metric.add(loss, epe, e3p, items, 1)
+        iter_metric.add(loss, epe, e3p, items, 1)
 
-        if (iter_metric.iters % iters_per_log  == 0) or (i+1 == len(trainloader)):
+        if (iter_metric.iters % iters_per_log == 0) or (i + 1 == len(trainloader)):
             iter_metric.end()
-            logger.append("iter",current_epoch,iter_metric)
+            logger.append("iter", current_epoch, iter_metric)
             iter_metric = Metrics()
 
     epoch_metric.end()
@@ -214,10 +214,10 @@ def testing_loop(
             d = pad_image_reverse(d, og)
 
             items = gt.shape[0]
-            epe = error_epe(gt, d,net.maxdisp) * items
-            e3p = error_3p(gt, d,net.maxdisp) * items
+            epe = error_epe(gt, d, net.maxdisp) * items
+            e3p = error_3p(gt, d, net.maxdisp) * items
             loss = F.smooth_l1_loss(d[mask], gt[mask]).item() * items
             # metrics
-            eval_metrics.add(loss,epe,e3p,items,1)
+            eval_metrics.add(loss, epe, e3p, items, 1)
     eval_metrics.end()
     return eval_metrics

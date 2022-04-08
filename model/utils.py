@@ -53,6 +53,6 @@ def save_model(model: Net, optimizer: Optimizer, scaler, savepath: str):
     return res
 
 
-def load_model(loadpath: str,device:torch.device=torch.device("cpu")):
-    state = torch.load(loadpath,map_location=device)
+def load_model(loadpath: str, device: torch.device = torch.device("cpu")):
+    state = torch.load(loadpath, map_location=device)
     return state.get("model"), state.get("optimizer"), state.get("scaler")
