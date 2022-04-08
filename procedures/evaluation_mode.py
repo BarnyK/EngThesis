@@ -6,6 +6,7 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
+from tqdm import tqdm
 from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
 from data.file_handling import read_file
 from data.indexing import index_set
@@ -14,6 +15,9 @@ from data.utils import (
     imagenet_normalization,
     pad_image,
     pad_image_reverse,
+    pad_image_,
+    pad_image_reverse_,
+    pad_parameters,
 )
 from measures import error_3p, error_epe
 from model import Net
@@ -65,8 +69,8 @@ def evaluate_one(
         print(ex)
         return
 
-    left, s = pad_image(left)
-    right, _ = pad_image(right)
+    left, s = pad_image_(left)
+    right, _ = pad_image_(right)
 
     assert_correct_shape(left)
     assert_correct_shape(right)
@@ -89,11 +93,14 @@ def evaluate_one(
     with torch.inference_mode():
         prediction = net(left, right)
 
-    pred = pad_image_reverse(prediction, s)
+    pred = pad_image_reverse_(prediction, s)
 
     if gt is not None:
-        epe = error_epe(gt, pred, max_disp)
-        e3p = error_3p(gt, pred, max_disp)
+        mask = torch.logical_and(gt < max_disp, gt > 0)
+        loss = F.smooth_l1_loss(gt[mask],pred[mask])
+        epe = error_epe(gt[mask], pred[mask])
+        e3p = error_3p(gt[mask], pred[mask])
+        print("Loss: ", loss.item())
         print("Endpoint error: ", epe)
         print("3 pixel error: ", e3p)
 
@@ -140,7 +147,7 @@ def eval_dataset(
         return
 
     try:
-        net, optimizer, scaler = prepare_model_optim_scaler(
+        net, *_ = prepare_model_optim_scaler(
             load_file, device, max_disp, no_sdea, 0
         )
     except FileNotFoundError as err:
@@ -167,31 +174,31 @@ def eval_dataset(
                 f.write(log)
 
     def eval_on_loader(loader, mode):
-        for i, (left, right, gt, paths) in enumerate(loader):
-            print(i, paths[0][0])
+        for i, (left, right, gt, paths) in tqdm(enumerate(loader),total=len(loader)):
 
-            left, pad_params = pad_image(left)
-            right, _ = pad_image(right)
+            left, pad_params = pad_image_(left)
+            right, _ = pad_image_(right)
 
             left = left.to(device)
             right = right.to(device)
-            mask = gt > 0
+            mask = torch.logical_and(gt < max_disp, gt > 0)
             gt = gt.to(device, non_blocking=True)
 
             with torch.inference_mode(), autocast(enabled=device.type == "cuda"):
                 st = time.time()
                 prediction = net(left, right)
                 et = time.time()
-            prediction = pad_image_reverse(prediction, pad_params)
+            prediction = pad_image_reverse_(prediction, pad_params)
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
             epe = error_epe(gt, prediction, max_disp)
             e3p = error_3p(gt, prediction, max_disp)
-            print("Time taken:", time_taken)
-            print("Loss: ", loss)
-            print("Endpoint error:", epe)
-            print("3 pixel error:", e3p)
+            # print(i, paths[0][0])
+            # print("Time taken:", time_taken)
+            # print("Loss: ", loss)
+            # print("Endpoint error:", epe)
+            # print("3 pixel error:", e3p)
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
 
     net.eval()

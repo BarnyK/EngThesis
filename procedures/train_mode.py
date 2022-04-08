@@ -159,9 +159,15 @@ def training_loop(
     iter_metric = Metrics()
     epoch_metric = Metrics()
     for i, (left, right, gt) in tqdm(enumerate(trainloader), total=len(trainloader)):
+        mask = torch.logical_and(gt < net.maxdisp, gt > 0)
+        if len(gt[mask]) == 0:
+            # Skip if mask covers whole image, since it would result in NaN loss
+            # Low probability of happening, because of shuffled dataloader
+            iter_metric.add(0,0,0,0,1)
+            epoch_metric.add(0,0,0,0,1)
+            continue
         left = left.to(device, non_blocking=True)
         right = right.to(device, non_blocking=True)
-        mask = torch.logical_and(gt < net.maxdisp, gt > 0)
         gt = gt.to(device, non_blocking=True)
 
         with autocast(enabled=device.type == "cuda"):
@@ -180,8 +186,8 @@ def training_loop(
         # Metrics
         items = gt.shape[0]
         loss = loss.item() * items
-        epe = error_epe(gt, d3, net.maxdisp) * items
-        e3p = error_3p(gt, d3, net.maxdisp) * items
+        epe = error_epe(gt[mask], d3[mask], net.maxdisp) * items
+        e3p = error_3p(gt[mask], d3[mask], net.maxdisp) * items
 
         epoch_metric.add(loss, epe, e3p, items, 1)
         iter_metric.add(loss, epe, e3p, items, 1)
@@ -202,10 +208,15 @@ def testing_loop(
     eval_metrics = Metrics()
     print("Evaluating on test set")
     for i, (left, right, gt) in tqdm(enumerate(testloader), total=len(testloader)):
-        left = left.to(device)
-        right = right.to(device)
+        left = left.to(device,non_blocking=True)
+        right = right.to(device,non_blocking=True)
         mask = torch.logical_and(gt < net.maxdisp, gt > 0)
-        gt = gt.to(device)
+        if len(gt[mask]) == 0:
+            # Skip if mask covers whole image
+            eval_metrics.add(0,0,0,0,1)
+            continue
+        
+        gt = gt.to(device,non_blocking=True)
         left, og = pad_image(left)
         right, og = pad_image(right)
         with torch.inference_mode():
@@ -214,8 +225,8 @@ def testing_loop(
             d = pad_image_reverse(d, og)
 
             items = gt.shape[0]
-            epe = error_epe(gt, d, net.maxdisp) * items
-            e3p = error_3p(gt, d, net.maxdisp) * items
+            epe = error_epe(gt[mask], d[mask], net.maxdisp) * items
+            e3p = error_3p(gt[mask], d[mask], net.maxdisp) * items
             loss = F.smooth_l1_loss(d[mask], gt[mask]).item() * items
             # metrics
             eval_metrics.add(loss, epe, e3p, items, 1)
