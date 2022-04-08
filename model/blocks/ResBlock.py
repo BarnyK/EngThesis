@@ -12,7 +12,7 @@ class BaseBlock(nn.Module):
             ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel, 1, padding, bias=False),
+            nn.Conv2d(out_channels, out_channels, kernel, 1, padding, dilation,bias=False),
             nn.BatchNorm2d(out_channels),
         )
 
@@ -55,7 +55,6 @@ class ResBlock(nn.Module):
             )
             layers.append(layer)
             stride = 1
-            dilation = 1
             cur_channels = out_channels
 
         self.layers = nn.Sequential(*layers)
