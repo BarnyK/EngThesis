@@ -186,8 +186,8 @@ def training_loop(
         # Metrics
         items = gt.shape[0]
         loss = loss.item() * items
-        epe = error_epe(gt[mask], d3[mask], net.maxdisp) * items
-        e3p = error_3p(gt[mask], d3[mask], net.maxdisp) * items
+        epe = error_epe(gt[mask], d3[mask]) * items
+        e3p = error_3p(gt[mask], d3[mask]) * items
 
         epoch_metric.add(loss, epe, e3p, items, 1)
         iter_metric.add(loss, epe, e3p, items, 1)
@@ -225,8 +225,8 @@ def testing_loop(
             d = pad_image_reverse(d, og)
 
             items = gt.shape[0]
-            epe = error_epe(gt[mask], d[mask], net.maxdisp) * items
-            e3p = error_3p(gt[mask], d[mask], net.maxdisp) * items
+            epe = error_epe(gt[mask], d[mask]) * items
+            e3p = error_3p(gt[mask], d[mask]) * items
             loss = F.smooth_l1_loss(d[mask], gt[mask]).item() * items
             # metrics
             eval_metrics.add(loss, epe, e3p, items, 1)
