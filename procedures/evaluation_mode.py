@@ -192,8 +192,8 @@ def eval_dataset(
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
-            epe = error_epe(gt, prediction)
-            e3p = error_3p(gt, prediction)
+            epe = error_epe(gt[mask], prediction[mask])
+            e3p = error_3p(gt[mask], prediction[mask])
             # print(i, paths[0][0])
             # print("Time taken:", time_taken)
             # print("Loss: ", loss)
