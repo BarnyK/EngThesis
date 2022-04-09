@@ -34,16 +34,14 @@ class StackedHourglassModule(nn.Module):
         out = self.conv1(input)
         out = self.conv2(out) + out
         skip_connection = out
-        # fmt: off
         out1, skip1, skip2 = self.hourglass1(out)
         out1 += skip_connection
-        out2,     _, skip2 = self.hourglass2(out1,skip2,skip1)
+        out2, _, skip2 = self.hourglass2(out1, skip2, skip1)
         out2 += skip_connection
-        out3,     _,     _ = self.hourglass2(out2,skip2,skip1)
+        out3, *_ = self.hourglass3(out2, skip2, skip1)
         out3 += skip_connection
-        # fmt: on
         out1 = self.hourglass1_processing(out1)
-        out2 = self.hourglass1_processing(out2) + out1
-        out3 = self.hourglass1_processing(out3) + out2
+        out2 = self.hourglass2_processing(out2) + out1
+        out3 = self.hourglass3_processing(out3) + out2
 
         return out1, out2, out3
