@@ -82,7 +82,7 @@ def read_and_prepare(
         disp_data = TF.crop(disp_data, i, j, w, h)
 
     if not isinstance(disp_data, torch.Tensor):
-        disp_data = __to_tensor(disp_data)
+        disp_data = __to_tensor(disp_data).squeeze(0)
         disp_data = disp_data.float() / 256
 
     if add_dim:
