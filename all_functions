@@ -1,0 +1,73 @@
+# Train
+python3 network.py train \
+    --epoch 1 \
+    --batch-size 3 \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save /tmp/train-1 \
+    --load ~/data/models/sceneflow-1-1 \
+    --dataset kittis \
+    --root ~/data/datasets/ \
+    --split 0.2 \
+    --log-file /tmp/logs/sceneflow-1-2.log \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epoch 1 \
+    --batch-size 3 \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save /tmp/train-2 \
+    --load ~/data/models/sceneflow-1-1 \
+    --dataset driving \
+    --root ~/data/datasets/driving__frames_cleanpass_webp \
+    --disparity-root ~/data/datasets/driving__disparity \
+    --split 0.2 \
+    --log-file /tmp/logs/sceneflow-1-2.log \
+    --iters-per-log 100
+# Evaluate one
+# Evaluate set
+python network.py evaluate \
+    --dataset sceneflow \
+    --root ~/data/datasets/ \
+    --only-testset \
+    --max-disp 192 \
+    --log-file /tmp/sceneflow-testset-left_pad-1-3.log \
+    --load ~/data/models/sceneflow-1-1 \
+    --split 0.0
+python network.py evaluate \
+    --dataset kittis \
+    --root ~/data/datasets/ \
+    --max-disp 192 \
+    --log-file /tmp/sceneflow-testset-left_pad-1-3.log \
+    --load ~/data/models/sceneflow-1-1 \
+    --split 0.5
+# Test indexes
+python network.py test \
+    --indexing \
+    --dataset kittis \
+    --root ~/data/datasets \
+    --split 0.2
+# test loading
+python network.py test \
+    --loading \
+    --dataset kittis \
+    --root ~/data/datasets \
+    --split 0.2
+# Print validation
+python network.py test \
+    --print-validation \
+    --dataset kittis \
+    --root ~/data/datasets \
+    --split 0.2
+# Print loading
+python network.py test \
+    --print-training \
+    --dataset kittis \
+    --root ~/data/datasets \
+    --split 0.2
+python network.py test \
+    --print-training \
+    --dataset sceneflow \
+    --root ~/data/datasets \
+    --split 0.2
