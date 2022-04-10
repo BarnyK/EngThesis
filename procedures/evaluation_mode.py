@@ -165,8 +165,8 @@ def eval_dataset(
     def eval_on_loader(loader, mode):
         for i, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
 
-            left, pad_params = pad_image_(left)
-            right, _ = pad_image_(right)
+            left, crop_params = pad_image_to_multiple(left)
+            right, _ = pad_image_to_multiple(right)
 
             left = left.to(device)
             right = right.to(device)
@@ -177,7 +177,7 @@ def eval_dataset(
                 st = time.time()
                 prediction = net(left, right)
                 et = time.time()
-            prediction = pad_image_reverse_(prediction, pad_params)
+            prediction = pad_image_reverse(prediction, crop_params)
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
