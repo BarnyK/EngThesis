@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from pickle import UnpicklingError
-from time import time
 
 import torch
 import torch.nn.functional as F
 from data import DisparityDataset, index_set
-from data.utils import pad_image, pad_image_reverse, pad_image_to_multiple
+from data.utils import pad_image_reverse, pad_image_to_multiple
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model, save_model
@@ -217,12 +215,12 @@ def testing_loop(
             continue
 
         gt = gt.to(device, non_blocking=True)
-        left, og = pad_image_to_multiple(left)
-        right, og = pad_image_to_multiple(right)
+        left, _ = pad_image_to_multiple(left)
+        right, p = pad_image_to_multiple(right)
         with torch.inference_mode():
             with autocast(device.type == "cuda"):
                 d = net(left, right)
-            d = pad_image_reverse(d, og)
+            d = pad_image_reverse(d, p)
 
             items = gt.shape[0]
             epe = error_epe(gt[mask], d[mask]) * items
