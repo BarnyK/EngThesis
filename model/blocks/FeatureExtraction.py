@@ -34,7 +34,7 @@ class FeatureExtraction(nn.Module):
         left = self.initial(left)
         left = self.resblock1(left)
         left = self.resblock2(left)
-        
+
         right = self.initial(right)
         right = self.resblock1(right)
         right = self.resblock2(right)

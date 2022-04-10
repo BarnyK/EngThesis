@@ -5,7 +5,7 @@ from time import time
 import torch
 import torch.nn.functional as F
 from data import DisparityDataset, index_set
-from data.utils import pad_image, pad_image_reverse
+from data.utils import pad_image, pad_image_reverse, pad_image_to_multiple
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model, save_model
@@ -163,8 +163,8 @@ def training_loop(
         if len(gt[mask]) == 0:
             # Skip if mask covers whole image, since it would result in NaN loss
             # Low probability of happening, because of shuffled dataloader
-            iter_metric.add(0,0,0,0,1)
-            epoch_metric.add(0,0,0,0,1)
+            iter_metric.add(0, 0, 0, 0, 1)
+            epoch_metric.add(0, 0, 0, 0, 1)
             continue
         left = left.to(device, non_blocking=True)
         right = right.to(device, non_blocking=True)
@@ -208,17 +208,17 @@ def testing_loop(
     eval_metrics = Metrics()
     print("Evaluating on test set")
     for i, (left, right, gt) in tqdm(enumerate(testloader), total=len(testloader)):
-        left = left.to(device,non_blocking=True)
-        right = right.to(device,non_blocking=True)
+        left = left.to(device, non_blocking=True)
+        right = right.to(device, non_blocking=True)
         mask = torch.logical_and(gt < net.maxdisp, gt > 0)
         if len(gt[mask]) == 0:
             # Skip if mask covers whole image
-            eval_metrics.add(0,0,0,0,1)
+            eval_metrics.add(0, 0, 0, 0, 1)
             continue
-        
-        gt = gt.to(device,non_blocking=True)
-        left, og = pad_image(left)
-        right, og = pad_image(right)
+
+        gt = gt.to(device, non_blocking=True)
+        left, og = pad_image_to_multiple(left)
+        right, og = pad_image_to_multiple(right)
         with torch.inference_mode():
             with autocast(device.type == "cuda"):
                 d = net(left, right)

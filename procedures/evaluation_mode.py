@@ -1,31 +1,22 @@
 import os
 import time
-from os import path
 from pickle import UnpicklingError
 
 import numpy as np
 import torch
 import torch.nn.functional as F
-from tqdm import tqdm
-from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
-from data.file_handling import read_file
+from data.dataset import (DisparityDataset, assert_correct_shape,
+                          read_and_prepare)
 from data.indexing import index_set
-from data.utils import (
-    check_paths_exist,
-    imagenet_normalization,
-    pad_image,
-    pad_image_reverse,
-    pad_image_,
-    pad_image_reverse_,
-    pad_parameters,
-)
+from data.utils import (check_paths_exist, pad_image_reverse,
+                        pad_image_to_multiple)
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model
 from PIL import Image
 from torch.cuda.amp import autocast
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from tqdm import tqdm
 
 from procedures.train_mode import prepare_model_optim_scaler
 
@@ -69,8 +60,8 @@ def evaluate_one(
         print(ex)
         return
 
-    left, s = pad_image_(left)
-    right, _ = pad_image_(right)
+    left, p = pad_image_to_multiple(left)
+    right, _ = pad_image_to_multiple(right)
 
     assert_correct_shape(left)
     assert_correct_shape(right)
@@ -93,11 +84,11 @@ def evaluate_one(
     with torch.inference_mode():
         prediction = net(left, right)
 
-    pred = pad_image_reverse_(prediction, s)
+    pred = pad_image_reverse(prediction, p)
 
     if gt is not None:
         mask = torch.logical_and(gt < max_disp, gt > 0)
-        loss = F.smooth_l1_loss(gt[mask],pred[mask])
+        loss = F.smooth_l1_loss(gt[mask], pred[mask])
         epe = error_epe(gt[mask], pred[mask])
         e3p = error_3p(gt[mask], pred[mask])
         print("Loss: ", loss.item())
@@ -124,8 +115,8 @@ def eval_dataset(
         print(ex)
         return
 
-    if max_disp <= 0 or max_disp % 4 != 0:
-        print("max_disp must be integer bigger than 0 divisible by 4")
+    if max_disp <= 0 or max_disp % 16 != 0:
+        print("max_disp must be integer bigger than 0 divisible by 16")
         return
 
     try:
@@ -147,9 +138,7 @@ def eval_dataset(
         return
 
     try:
-        net, *_ = prepare_model_optim_scaler(
-            load_file, device, max_disp, no_sdea, 0
-        )
+        net, *_ = prepare_model_optim_scaler(load_file, device, max_disp, no_sdea, 0)
     except FileNotFoundError as err:
         print("Could not find given load_file ", load_file)
         return
@@ -174,7 +163,7 @@ def eval_dataset(
                 f.write(log)
 
     def eval_on_loader(loader, mode):
-        for i, (left, right, gt, paths) in tqdm(enumerate(loader),total=len(loader)):
+        for i, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
 
             left, pad_params = pad_image_(left)
             right, _ = pad_image_(right)

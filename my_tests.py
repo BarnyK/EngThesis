@@ -44,20 +44,21 @@ def main2():
     }
 
     trainset, testset = index_set(**kwargs)
-    trainset = DisparityDataset(trainset, random_crop=False,return_paths=True)
-    testset = DisparityDataset(testset, random_crop=False,return_paths=True)
+    trainset = DisparityDataset(trainset, random_crop=False, return_paths=True)
+    testset = DisparityDataset(testset, random_crop=False, return_paths=True)
     from torch.utils.data import DataLoader
-    trainloader = DataLoader(trainset,1)
+
+    trainloader = DataLoader(trainset, 1)
     for i, (l, r, d, p) in enumerate(trainloader):
         print(l.shape)
         print(r.shape)
         print(d.shape)
         break
-    ll,rr,dd = read_and_prepare(p[0][0],p[1][0],p[2][0])
+    ll, rr, dd = read_and_prepare(p[0][0], p[1][0], p[2][0])
     print(ll.shape)
     print(rr.shape)
     print(dd.shape)
-    tloader = DataLoader([(ll,rr,dd),(ll,rr,dd)],1)
+    tloader = DataLoader([(ll, rr, dd), (ll, rr, dd)], 1)
     for i, (z) in enumerate(trainloader):
         print(z[0].shape)
         print(z[1].shape)
@@ -88,8 +89,10 @@ def main4():
         False,
     )
 
+
 def main5():
     from data.utils import pad_image_, pad_image_reverse_
+
     left = torch.ones((1, 1, 3, 3))
     lp, s = pad_image_(left)
     lpp = pad_image_reverse_(lp, s)
@@ -98,18 +101,32 @@ def main5():
     print(lp)
     print(torch.abs(left - lpp).sum())
 
+
 def main5():
     from procedures.evaluation_mode import eval_dataset
 
     eval_dataset(
-        "kittis",192,True,True,None,"/home/barny/Desktop/test.log",True,root="/home/barny/Desktop/datasets/kittis",split=1,
+        "kittis",
+        192,
+        True,
+        True,
+        None,
+        "/home/barny/Desktop/test.log",
+        True,
+        root="/home/barny/Desktop/datasets/kittis",
+        split=1,
     )
+
+
 def main6():
     from model import Net
     from torchinfo import summary
+
     with torch.cuda.amp.autocast():
-        x = Net(192,False).cuda()
-        data = summary(x,[(3,3,256,512),(3,3,256,512)],depth=10,device="cuda")
-        with open("summary2.txt","w",encoding="utf-8") as f:
+        x = Net(192, False).cuda()
+        data = summary(x, [(3, 3, 256, 512), (3, 3, 256, 512)], depth=10, device="cuda")
+        with open("summary2.txt", "w", encoding="utf-8") as f:
             f.write(str(data))
+
+
 main6()

@@ -12,7 +12,9 @@ class BaseBlock(nn.Module):
             ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel, 1, padding, dilation,bias=False),
+            nn.Conv2d(
+                out_channels, out_channels, kernel, 1, padding, dilation, bias=False
+            ),
             nn.BatchNorm2d(out_channels),
         )
 
