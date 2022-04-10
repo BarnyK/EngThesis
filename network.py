@@ -2,15 +2,22 @@ import argparse
 from data import SUPPORTED_DATASETS
 from procedures.train_mode import train
 from procedures.evaluation_mode import eval_dataset, evaluate_one
-from procedures.test_mode import test_indexes, print_validation, test_loader,print_training
+from procedures.test_mode import (
+    test_indexes,
+    print_validation,
+    test_loader,
+    print_training,
+)
+
 # Modes:
 #   Train - training the network
 #   Eval  - evaluate given image pair and return resulting disparity
 #   Test  - test various functions
 
+
 def main():
     parser = argparse.ArgumentParser()
-
+    # fmt: off
     parser.add_argument("mode",type=str,choices=["train","evaluate","test"],metavar="mode")
 
     datasets_group = parser.add_argument_group("Dataset", "Arguments used for dataset handling")
@@ -52,7 +59,7 @@ def main():
     test_group.add_argument("--loading", dest="test_loading",action="store_true",help="If loading of data should be tested")
     test_group.add_argument("--print-validation", dest="print_validation",action="store_true",help="Print out files used for validation with given parameters")
     test_group.add_argument("--print-training", dest="print_training",action="store_true",help="Print out files used for training with given parameters")
-
+    # fmt: on
     # Tests for indexing each set
     args = parser.parse_args()
     args_dict = vars(args)
@@ -89,7 +96,7 @@ def setupEvaluation(args: argparse.Namespace):
     kwargs = vars(args)
     if dn := kwargs.get("dataset_name"):
         return eval_dataset(**kwargs)
-        
+
     return evaluate_one(**kwargs)
 
 
@@ -103,6 +110,7 @@ def setupTraining(args):
         print("batch size need to be set, please use --batch-size flag")
         return
     return train(**kwargs)
+
 
 if __name__ == "__main__":
     main()

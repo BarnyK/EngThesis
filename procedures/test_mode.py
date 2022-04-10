@@ -1,4 +1,3 @@
-import enum
 from data.dataset import DisparityDataset
 from data import index_set
 from torch.utils.data import DataLoader

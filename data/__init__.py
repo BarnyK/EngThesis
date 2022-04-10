@@ -10,3 +10,6 @@ from .indexing_sceneflow import (
 )
 
 from .utils import IMAGENET_NORMALIZATION_PARAMS
+
+
+from .dataset import DisparityDataset, read_and_prepare

@@ -1,6 +1,7 @@
 from typing import Tuple
 import torch
 
+
 @torch.jit.script
 def error_3p(
     ground_truth: torch.Tensor,
@@ -21,8 +22,6 @@ def error_3p(
 
 
 @torch.jit.script
-def error_epe(
-    ground_truth: torch.Tensor, disparity: torch.Tensor
-) -> float:
+def error_epe(ground_truth: torch.Tensor, disparity: torch.Tensor) -> float:
     res = torch.abs(disparity - ground_truth)
     return res.mean().item()

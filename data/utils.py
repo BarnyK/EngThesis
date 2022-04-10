@@ -1,9 +1,10 @@
-from math import ceil
-from os import path, listdir
-from torchvision import transforms
-import torchvision.transforms.functional as TF
-import torch
 from dataclasses import dataclass
+from math import ceil
+from os import listdir, path
+
+import torch
+import torchvision.transforms.functional as TF
+from torchvision import transforms
 
 IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 imagenet_normalization = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
@@ -18,11 +19,11 @@ def check_paths_exist(*args):
 
 
 @dataclass
-class pad_parameters:
-    h_pad: int
-    w_pad: int
-    height: int
-    width: int
+class CropParams:
+    top: int = 0
+    left: int = 0
+    height: int = 0
+    width: int = 0
 
 
 def match_images_disparities(left_folder, right_folder, disp_folder, input_extension):
@@ -47,34 +48,31 @@ def match_images_disparities(left_folder, right_folder, disp_folder, input_exten
     return triplets
 
 
-def pad_image(input: torch.Tensor):
+def pad_image_to_multiple(
+    input: torch.Tensor, left: bool = True, top: bool = True, multiple: int = 16
+):
+    if multiple <= 0:
+        raise ValueError("multiple should be bigger than 0")
     *_, h, w = input.shape
-    h_pad = ceil(h / 16) * 16 - h
-    w_pad = ceil(w / 16) * 16 - w
-    # left, top, right, bottom
-    res = TF.pad(input, (0, h_pad, w_pad, 0))
-    return res, pad_parameters(h_pad, w_pad, h, w)
+    h_pad = ceil(h / multiple) * multiple - h
+    v_pad = ceil(w / multiple) * multiple - w
+    if left and top:
+        res = TF.pad(input, (v_pad, h_pad, 0, 0))
+        return res, CropParams(h_pad, v_pad, h, w)
+    elif left and not top:
+        res = TF.pad(input, (v_pad, 0, 0, h_pad))
+        return res, CropParams(0, v_pad, h, w)
+    elif not left and top:
+        res = TF.pad(input, (0, h_pad, v_pad, 0))
+        return res, CropParams(h_pad, 0, h, w)
+    else:
+        res = TF.pad(input, (0, 0, v_pad, h_pad))
+        return res, CropParams(0, 0, h, w)
 
 
-def pad_image_reverse(input: torch.Tensor, params: pad_parameters):
+def pad_image_reverse(input: torch.Tensor, params: CropParams):
     p = params
-    # top, left, heigh, width
-    return TF.crop(input, p.h_pad, 0, p.height, p.width)
-
-
-def pad_image_(input: torch.Tensor):
-    *_, h, w = input.shape
-    h_pad = ceil(h / 16) * 16 - h
-    w_pad = ceil(w / 16) * 16 - w
-    # left, top, right, bottom
-    res = TF.pad(input, (w_pad, h_pad, 0, 0))
-    return res, pad_parameters(h_pad, w_pad, h, w)
-
-
-def pad_image_reverse_(input: torch.Tensor, params: pad_parameters):
-    p = params
-    # top, left, heigh, width
-    return TF.crop(input, p.h_pad, p.w_pad, p.height, p.width)
+    return TF.crop(input, p.top, p.left, p.height, p.width)
 
 
 from torch.nn.functional import interpolate
