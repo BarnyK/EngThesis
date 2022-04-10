@@ -1,7 +1,5 @@
 from typing import Tuple
 import torch
-from time import time
-
 
 @torch.jit.script
 def error_3p(
