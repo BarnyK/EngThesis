@@ -1,6 +1,5 @@
 from math import ceil
 from os import path, listdir
-from statistics import mode
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 import torch

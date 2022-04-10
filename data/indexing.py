@@ -1,9 +1,4 @@
-from os import path
-from os import listdir
-
-import data
 from .indexing_kitty import index_kitti2012, index_kitti2015, combine_kitti
-from .utils import check_paths_exist
 from .indexing_sceneflow import (
     index_driving,
     index_flyingthings,
