@@ -55,7 +55,7 @@ def main():
     eval_group.add_argument("--only-testset",dest="only_testset",action="store_true",help="Whether dataset validation should be done only on testset or on both")
 
     test_group = parser.add_argument_group("Test","Arguments used for test mode")
-    test_group.add_argument("--indexes",dest="test_indexes",action="store_true",help="If indexes should be tested")
+    test_group.add_argument("--indexing",dest="test_indexes",action="store_true",help="If indexes should be tested")
     test_group.add_argument("--loading", dest="test_loading",action="store_true",help="If loading of data should be tested")
     test_group.add_argument("--print-validation", dest="print_validation",action="store_true",help="Print out files used for validation with given parameters")
     test_group.add_argument("--print-training", dest="print_training",action="store_true",help="Print out files used for training with given parameters")
