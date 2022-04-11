@@ -46,6 +46,7 @@ def main():
     train_group.add_argument("--iters-to-accumulate",dest="iters_to_accumulate",type=int,default=1,help="How mnay iterations should be done before each backwards pass")
     train_group.add_argument("--log-file",dest="log_file",type=str,help="File to which data obtained during training is saved")
     train_group.add_argument("--iters-per-log",dest="iters_per_log",type=int,default=25,help="How mnay iterations should be done for each log")
+    train_group.add_argument("--epochs-per-save",dest="epochs_per_save",type=int,default=1,help="How often should temporary model be saved")
 
     eval_group = parser.add_argument_group("Evaluation","Arguments used for evaluation mode")
     eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation")
