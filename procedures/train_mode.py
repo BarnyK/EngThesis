@@ -32,8 +32,6 @@ def train(
     epochs_per_save: int,
     **kwargs,
 ):
-    torch.manual_seed(1111)
-
     try:
         logger = create_logger(log_file, save_file, dataset_name, learning_rate)
     except ValueError as er:
