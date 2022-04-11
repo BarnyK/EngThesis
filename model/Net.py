@@ -21,6 +21,9 @@ class Net(nn.Module):
         )
 
     def to(self, device):
+        """
+            Additonaly move the self.disparities array to given device.
+        """
         new_self = super().to(device)
         new_self.disparities = new_self.disparities.to(device)
 
@@ -36,8 +39,8 @@ class Net(nn.Module):
         out1, out2, out3 = self.stacked_hourglass(cost)
 
         # 1 x maxdisp / 4 x H/4 x W/4
-
         out3 = self.upsample_regression(out3)
+        
         # H x W
         if not self.training:
             return out3
@@ -71,8 +74,9 @@ class Net(nn.Module):
             ),
             device=left.device,
         )
-        ch = left.shape[1]
+        
         # Copy from feature matrices to cost volume
+        ch = left.shape[1]
         cost[:, :ch, 0, :, :] = left
         cost[:, ch:, 0, :, :] = right
         for i in range(1, self.maxdisp // 4):
