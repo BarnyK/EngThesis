@@ -1,7 +1,10 @@
 from torch import nn
 
 
-class BaseBlock(nn.Module):
+class BasicBlock(nn.Module):
+    """
+        Singular block which is a part of ResBlock
+    """
     def __init__(
         self, in_channels, out_channels, kernel=3, stride=1, padding=1, dilation=1
     ):
@@ -47,7 +50,7 @@ class ResBlock(nn.Module):
         cur_channels = in_channels
 
         for i in range(blocks):
-            layer = BaseBlock(
+            layer = BasicBlock(
                 cur_channels,
                 out_channels,
                 3,
