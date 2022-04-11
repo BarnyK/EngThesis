@@ -42,9 +42,9 @@ class Hourglass(nn.Module):
             # Add skip connection
             out = out + skip1
 
-        out = F.relu(out)
+        out = F.relu(out,inplace=True)
         out_skip1 = out
-        
+
         out = self.conv3(out)
         out = self.conv4(out)
 
@@ -54,7 +54,7 @@ class Hourglass(nn.Module):
         else:
             out = out + out_skip1  # Happens on first hourglass
 
-        out = F.relu(out)
+        out = F.relu(out,inplace=True)
         out_skip2 = out
 
         out = self.deconv2(out)
