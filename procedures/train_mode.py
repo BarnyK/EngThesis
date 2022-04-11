@@ -8,6 +8,7 @@ from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model, save_model
 from torch.cuda.amp import GradScaler, autocast
+from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -28,6 +29,7 @@ def train(
     no_sdea: bool,
     iters_to_accumulate: int,
     iters_per_log: int,
+    epochs_per_save: int,
     **kwargs,
 ):
     torch.manual_seed(1111)
@@ -63,6 +65,7 @@ def train(
         print(er)
         return
 
+    # Create model, optimizer and grad scaler
     try:
         net, optimizer, scaler = prepare_model_optim_scaler(
             load_file, device, max_disp, no_sdea, learning_rate
@@ -77,6 +80,7 @@ def train(
         print(err)
         return
 
+    # Training and test
     try:
         for epoch in range(epochs):
             print(f"Epoch {epoch+1} out of {epochs}")
@@ -93,7 +97,8 @@ def train(
                 logger,
                 iters_per_log,
             )
-            if save_file:
+
+            if save_file and epochs_per_save > 0 and (epoch + 1) % epochs_per_save == 0:
                 save_model(net, optimizer, scaler, f"{save_file}-{epoch}.tmp")
 
             print("Training metrics:")
@@ -109,10 +114,10 @@ def train(
             logger.append("epoch", epoch, trm, tm)
     except KeyboardInterrupt:
         print("Received KeyboardInterrupt, closing")
-        return
-
-    if save_file:
-        save_model(net, optimizer, scaler, save_file)
+    finally:
+        if save_file:
+            save_model(net, optimizer, scaler, save_file)
+            print(f"Saved model to {save_file}")
 
 
 def prepare_model_optim_scaler(
@@ -145,7 +150,7 @@ def prepare_model_optim_scaler(
 def training_loop(
     net: Net,
     trainloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
+    optimizer: Optimizer,
     scaler: GradScaler,
     device: torch.device,
     current_epoch: int,
