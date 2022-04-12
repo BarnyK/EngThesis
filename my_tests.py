@@ -6,6 +6,7 @@ from measures.measures import error_3p
 from model import Net
 from model.blocks import SDEABlock
 import torch.nn.functional as F
+from procedures.evaluation_mode import evaluate_one
 from procedures.train_mode import prepare_model_optim_scaler
 
 
@@ -104,14 +105,20 @@ def main5():
 
 def main5():
     from procedures.evaluation_mode import eval_dataset
-
+    evaluate_one(
+        "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_left.webp",
+        "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_right.webp",
+        "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_res444.png",
+        "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_gt.pfm",
+        192,"/home/barny/data/models/sceneflow-1-3",False,False
+    )
     eval_dataset(
         "kittis",
         192,
-        True,
-        True,
-        None,
-        "/home/barny/Desktop/test.log",
+        False,
+        False,
+        "/home/barny/data/models/sceneflow-1-3",
+        "/home/barny/Desktop/test345.log",
         True,
         root="/home/barny/Desktop/datasets/kittis",
         split=1,
@@ -153,4 +160,4 @@ def main8():
 
 
 
-main6()
+main5()
