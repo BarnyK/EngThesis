@@ -44,7 +44,7 @@ class FeatureExtraction(nn.Module):
         right = self.resblock1(right)
         right = self.resblock2(right)
 
-        left_skip, right_skip = left, right
+        left_skip, right_skip = left, right  # Skip from 2nd res block
 
         if self.no_sdea:
             left = self.resblock3(left)
