@@ -27,7 +27,6 @@ class BasicBlock(nn.Module):
                 nn.Conv2d(in_channels, out_channels, 1, stride, bias=False),
                 nn.BatchNorm2d(out_channels),
             )
-        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, input):
         out = self.block(input)
@@ -37,7 +36,6 @@ class BasicBlock(nn.Module):
             skip = self.downsample(input)
 
         out += skip
-        out = self.relu(out)
         return out
 
 
