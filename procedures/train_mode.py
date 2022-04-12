@@ -48,7 +48,7 @@ def train(
     try:
         trainset, testset = index_set(dataset_name, **kwargs)
         trainset = DisparityDataset(trainset)
-        testset = DisparityDataset(testset, random_crop=False)
+        testset = DisparityDataset(testset, random_crop=False,crop_to_multiple=True)
         trainloader = DataLoader(
             trainset,
             batch_size,
@@ -218,12 +218,12 @@ def testing_loop(
             continue
 
         gt = gt.to(device, non_blocking=True)
-        left, _ = pad_image_to_multiple(left)
-        right, p = pad_image_to_multiple(right)
+        # left, _ = pad_image_to_multiple(left)
+        # right, p = pad_image_to_multiple(right)
         with torch.inference_mode():
             with autocast(device.type == "cuda"):
                 d = net(left, right)
-            d = pad_image_reverse(d, p)
+            # d = pad_image_reverse(d, p)
 
             items = gt.shape[0]
             epe = error_epe(gt[mask], d[mask]) * items

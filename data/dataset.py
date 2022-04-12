@@ -3,7 +3,7 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from .utils import IMAGENET_NORMALIZATION_PARAMS, imagenet_normalization
+from .utils import IMAGENET_NORMALIZATION_PARAMS, crop_image_to_multiple, imagenet_normalization
 from .file_handling import read_file
 
 __to_tensor = transforms.ToTensor()
@@ -16,6 +16,8 @@ class DisparityDataset(Dataset):
         random_crop=True,
         crop_shape=(256, 512),
         return_paths: bool = False,
+        crop_to_multiple: bool = False,
+        multiple: int = 16,
     ):
         self.image_paths = paths[:]
         self.random_crop = random_crop
@@ -25,6 +27,8 @@ class DisparityDataset(Dataset):
             self.crop_shape = crop_shape
         self.__to_tensor = transforms.ToTensor()
         self.normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
+        self.crop_to_multiple = crop_to_multiple
+        self.multiple = multiple
 
     def __len__(self):
         return len(self.image_paths)
@@ -34,6 +38,11 @@ class DisparityDataset(Dataset):
         left, right, disp = read_and_prepare(
             left, right, disp, self.random_crop, self.crop_shape, True
         )
+
+        if self.crop_to_multiple:
+            left = crop_image_to_multiple(left,multiple=self.multiple)
+            right = crop_image_to_multiple(right,multiple=self.multiple)
+            disp = crop_image_to_multiple(disp,multiple=self.multiple)
 
         if self.return_paths:
             return left, right, disp, self.image_paths[index]
