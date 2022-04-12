@@ -61,7 +61,10 @@ def evaluate_one(
         return
 
     left, p = pad_image_to_multiple(left)
+    left = left.to(device,non_blocking=True)
     right, _ = pad_image_to_multiple(right)
+    right = right.to(device,non_blocking=True)
+    gt = gt.to(device,non_blocking=True)
 
     assert_correct_shape(left)
     assert_correct_shape(right)
@@ -121,8 +124,8 @@ def eval_dataset(
 
     try:
         trainset, testset = index_set(dataset_name, **kwargs)
-        trainset = DisparityDataset(trainset, random_crop=False, return_paths=True)
-        testset = DisparityDataset(testset, random_crop=False, return_paths=True)
+        trainset = DisparityDataset(trainset, random_crop=False, return_paths=True,crop_to_multiple=True)
+        testset = DisparityDataset(testset, random_crop=False, return_paths=True,crop_to_multiple=True)
         trainloader = DataLoader(
             trainset,
             1,
@@ -164,10 +167,6 @@ def eval_dataset(
 
     def eval_on_loader(loader, mode):
         for i, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
-
-            left, crop_params = pad_image_to_multiple(left)
-            right, _ = pad_image_to_multiple(right)
-
             left = left.to(device)
             right = right.to(device)
             mask = torch.logical_and(gt < max_disp, gt > 0)
@@ -177,7 +176,6 @@ def eval_dataset(
                 st = time.time()
                 prediction = net(left, right)
                 et = time.time()
-            prediction = pad_image_reverse(prediction, crop_params)
 
             time_taken = et - st
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()

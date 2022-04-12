@@ -51,8 +51,8 @@ class SPPBlock(nn.Module):
 
         concat = torch.cat(
             (
-                skip_connection,
                 input,
+                skip_connection,
                 pool4_result,
                 pool3_result,
                 pool2_result,
