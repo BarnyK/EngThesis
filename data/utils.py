@@ -55,24 +55,46 @@ def pad_image_to_multiple(
         raise ValueError("multiple should be bigger than 0")
     *_, h, w = input.shape
     h_pad = ceil(h / multiple) * multiple - h
-    v_pad = ceil(w / multiple) * multiple - w
+    w_pad = ceil(w / multiple) * multiple - w
     if left and top:
-        res = TF.pad(input, (v_pad, h_pad, 0, 0))
-        return res, CropParams(h_pad, v_pad, h, w)
+        res = TF.pad(input, (w_pad, h_pad, 0, 0))
+        return res, CropParams(h_pad, w_pad, h, w)
     elif left and not top:
-        res = TF.pad(input, (v_pad, 0, 0, h_pad))
-        return res, CropParams(0, v_pad, h, w)
+        res = TF.pad(input, (w_pad, 0, 0, h_pad))
+        return res, CropParams(0, w_pad, h, w)
     elif not left and top:
-        res = TF.pad(input, (0, h_pad, v_pad, 0))
+        res = TF.pad(input, (0, h_pad, w_pad, 0))
         return res, CropParams(h_pad, 0, h, w)
     else:
-        res = TF.pad(input, (0, 0, v_pad, h_pad))
+        res = TF.pad(input, (0, 0, w_pad, h_pad))
         return res, CropParams(0, 0, h, w)
 
 
 def pad_image_reverse(input: torch.Tensor, params: CropParams):
     p = params
     return TF.crop(input, p.top, p.left, p.height, p.width)
+
+
+def crop_image_to_multiple(
+    input: torch.Tensor, left: bool = False, top: bool = False, multiple: int = 16
+):
+    if multiple <= 0:
+        raise ValueError("multiple should be bigger than 0")
+    *_, h, w = input.shape
+    h_crop = h - (h // multiple) * multiple
+    w_crop = w - (w // multiple) * multiple
+    if left and top:
+        res = TF.crop(input, 0,0,h-h_crop,w-w_crop)
+        return res
+    elif left and not top:
+        res = TF.crop(input, h_crop,0,h-h_crop,w-w_crop)
+        return res
+    elif not left and top:
+        res = TF.crop(input, 0,w_crop,h-h_crop,w-w_crop)
+        return res
+    else:
+        res = TF.crop(input, h_crop,w_crop,h-h_crop,w-w_crop)
+        return res
 
 
 from torch.nn.functional import interpolate
