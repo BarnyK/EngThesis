@@ -11,7 +11,7 @@ def index_kitti2012(
     if not occlussion:
         disp_folder = "disp_noc"
     if colored:
-        return __index_kitti(root, "colored_0", "colored_1", disp_folder)
+        return __index_kitti(root, "colored_0", "colored_1", disp_folder, "png", split, validation_length)
     return __index_kitti(
         root, "image_0", "image_1", disp_folder, "png", split, validation_length
     )
