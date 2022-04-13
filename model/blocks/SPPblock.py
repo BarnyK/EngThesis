@@ -13,11 +13,11 @@ class SPPBlock(nn.Module):
             nn.AvgPool2d(kernel_size=(64, 64), stride=64),
             conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
         )
-        self.pool3 = nn.Sequential(
+        self.pool2 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(32, 32), stride=32),
             conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
         )
-        self.pool2 = nn.Sequential(
+        self.pool3 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(16, 16), stride=16),
             conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
         )
@@ -26,7 +26,7 @@ class SPPBlock(nn.Module):
             conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
         )
 
-        ## concatenation of all 4 pools + input + skip connection happens here
+        ## concatenation of all 4 pools + input + skip connection happens here 128, 32, 64
         concat_channels = pool_output_channels * 4 + input_channels + skip_channels
         self.conv = nn.Sequential(
             conv2d_norm_relu(concat_channels, 128, 3, 1, 1),
@@ -51,12 +51,12 @@ class SPPBlock(nn.Module):
 
         concat = torch.cat(
             (
-                skip_connection,
-                input,
-                pool4_result,
-                pool3_result,
-                pool2_result,
-                pool1_result,
+                skip_connection, # 64
+                input,           # 128
+                pool4_result,    # 32
+                pool3_result,    # 32
+                pool2_result,    # 32 
+                pool1_result,    # 32
             ),
             dim=1,
         )
