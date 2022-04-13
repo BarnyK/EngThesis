@@ -53,11 +53,11 @@ def train(
             trainset,
             batch_size,
             shuffle=True,
-            num_workers=2,
+            num_workers=4,
             pin_memory=True,
         )
         testloader = DataLoader(
-            testset, 1, shuffle=False, num_workers=2, pin_memory=True
+            testset, 1, shuffle=False, num_workers=4, pin_memory=True
         )
     except ValueError as er:
         print(er)
