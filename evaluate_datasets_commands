@@ -41,7 +41,27 @@ python network.py evaluate \
     --log-file ~/data/eval-logs/sceneflow-1-4-1_sceneflow.log \
     --load ~/data/models/sceneflow-1-4-1 \
     --split 0.0 \
-    
+
+python network.py evaluate \
+    --dataset sceneflow \
+    --root ~/data/datasets \
+    --max-disp 192 \
+    --log-file ~/data/eval-logs/nosdea-sceneflow-1-1_sceneflow.log \
+    --load ~/data/models/nosdea-sceneflow-1-1 \
+    --split 0.0 --only-testset --no-sdea
+
+tail --pid=141109 -f /dev/null
+python network.py evaluate \
+    --dataset sceneflow \
+    --root ~/data/datasets \
+    --max-disp 192 \
+    --log-file ~/data/eval-logs/nosdea-sceneflow-1-2_sceneflow.log \
+    --load ~/data/models/nosdea-sceneflow-1-1-11.tmp \
+    --split 0.0 \
+    --only-testset \
+    --no-sdea
+
+
 # python network.py evaluate \
 #     --dataset sceneflow \
 #     --root ~/Desktop/datasets/sceneflow/ \

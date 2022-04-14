@@ -11,3 +11,18 @@ python3 network.py train \
     --log-file ~/data/logs/nosdea-sceneflow-1-1.log \
     --iters-per-log 25 \
     --no-sdea
+
+python3 network.py train \
+    --epochs 2 \
+    --batch-size 3 \
+    --iters-to-accumulate 4 \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/models/nosdea-sceneflow-1-2 \
+    --load ~/data/models/nosdea-sceneflow-1-11.tmp \
+    --dataset sceneflow \
+    --root ~/data/datasets/ \
+    --split 0.0 \
+    --log-file ~/data/logs/nosdea-sceneflow-1-2.log \
+    --iters-per-log 25 \
+    --no-sdea
