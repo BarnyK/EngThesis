@@ -23,8 +23,8 @@ class FeatureExtraction(nn.Module):
         self.resblock1 = ResBlock(3, 32, 32, 1)
         self.resblock2 = ResBlock(16, 32, 64, 2)
         if self.no_sdea:
-            self.resblock3 = ResBlock(3, 64, 128, 1, padding=2, dilation=2)
-            self.resblock4 = ResBlock(3, 128, 128, 1, padding=4, dilation=4)
+            self.resblock3 = ResBlock(3, 64, 128, 1, padding=1, dilation=1)
+            self.resblock4 = ResBlock(3, 128, 128, 1, padding=2, dilation=2)
         else:
             self.sdea0_0 = SDEABlock(64, 128, max_disp // 4)
             self.sdea0_1 = SDEABlock(128, 128, max_disp // 4)
