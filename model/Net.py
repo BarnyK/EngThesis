@@ -73,6 +73,7 @@ class Net(nn.Module):
                 left.shape[3],
             ),
             device=left.device,
+            dtype=left.dtype,
         )
         
         # Copy from feature matrices to cost volume
