@@ -1,3 +1,4 @@
+from typing import Union
 import torch
 from torch import nn
 from torch.optim import Optimizer
@@ -56,3 +57,8 @@ def save_model(model: Net, optimizer: Optimizer, scaler, savepath: str):
 def load_model(loadpath: str, device: torch.device = torch.device("cpu")):
     state = torch.load(loadpath, map_location=device)
     return state["model"], state["optimizer"], state["scaler"]
+
+def init_convolutions(module: Union[nn.Conv2d,nn.Conv3d]):
+    torch.nn.init.kaiming_normal_(module.weight,a=0,mode="fan_out",nonlinearity="relu")
+    if module.bias is not None:
+        torch.nn.init.zeros_(module.bias)

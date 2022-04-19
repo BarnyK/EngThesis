@@ -5,7 +5,7 @@ from .blocks import (
     StackedHourglassModule,
     FeatureExtraction,
 )
-
+from .utils import init_convolutions
 
 class Net(nn.Module):
     ## Main module for Network
@@ -19,6 +19,10 @@ class Net(nn.Module):
         self.disparities = torch.arange(max_disp, requires_grad=False).reshape(
             (1, max_disp, 1, 1)
         )
+
+        for m in self.modules():
+            if isinstance(m,(nn.Conv2d,nn.Conv3d)):
+                init_convolutions(m)
 
     def to(self, device):
         """
