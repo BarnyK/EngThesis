@@ -1,4 +1,5 @@
 from time import time
+from black import out
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -8,12 +9,13 @@ class SDEABlock(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, maxdisp: int):
         super().__init__()
         self.maxdisp = maxdisp
+        norm_groups = out_channels//16
         self.g1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, 1, 1, bias=False),
-            nn.GroupNorm(16,out_channels),
+            nn.GroupNorm(norm_groups,out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, 3, 1, 1, bias=False),
-            nn.GroupNorm(16,out_channels),
+            nn.GroupNorm(norm_groups,out_channels),
             nn.ReLU(),
         )
         self.g2 = nn.Conv2d(out_channels, 1, 1, 1, 0)

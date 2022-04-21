@@ -1,3 +1,4 @@
+from tokenize import group
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -11,25 +12,25 @@ class SPPBlock(nn.Module):
 
         self.pool1 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(64, 64), stride=64),
-            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
+            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1,groups=2),
         )
         self.pool2 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(32, 32), stride=32),
-            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
+            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1,groups=2),
         )
         self.pool3 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(16, 16), stride=16),
-            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
+            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1,groups=2),
         )
         self.pool4 = nn.Sequential(
             nn.AvgPool2d(kernel_size=(8, 8), stride=8),
-            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1),
+            conv2d_norm_relu(input_channels, pool_output_channels, 1, 1,groups=2),
         )
 
         ## concatenation of all 4 pools + input + skip connection happens here 128, 32, 64
         concat_channels = pool_output_channels * 4 + input_channels + skip_channels
         self.conv = nn.Sequential(
-            conv2d_norm_relu(concat_channels, 128, 3, 1, 1),
+            conv2d_norm_relu(concat_channels, 128, 3, 1, 1,groups=8),
             nn.Conv2d(128, 32, 1, 1,bias=False),
         )
 

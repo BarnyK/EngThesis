@@ -6,32 +6,32 @@ from torch.optim import Optimizer
 from . import Net
 
 
-def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
+def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1,groups=4) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups,out),
     )
 
 
-def conv2d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
+def conv2d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1,groups=4) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups,out),
         nn.ReLU(inplace=True),
     )
 
 
-def conv3d_norm(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
+def conv3d_norm(in_, out, kernel, stride, padding=0, dilation=1,groups=2) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv3d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups,out),
     )
 
 
-def conv3d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1):
+def conv3d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1,groups=2):
     return nn.Sequential(
         nn.Conv3d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups,out),
         nn.ReLU(inplace=True),
     )
 

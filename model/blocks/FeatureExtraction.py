@@ -20,11 +20,11 @@ class FeatureExtraction(nn.Module):
             conv2d_norm_relu(32, 32, 3, 1, 1),
             conv2d_norm_relu(32, 32, 3, 1, 1),
         )
-        self.resblock1 = ResBlock(3, 32, 32, 1)
-        self.resblock2 = ResBlock(16, 32, 64, 2)
+        self.resblock1 = ResBlock(3, 32, 32, 1,norm_groups=4)
+        self.resblock2 = ResBlock(16, 32, 64, 2,norm_groups=8)
         if self.no_sdea:
-            self.resblock3 = ResBlock(3, 64, 128, 1, padding=1, dilation=1)
-            self.resblock4 = ResBlock(3, 128, 128, 1, padding=2, dilation=2)
+            self.resblock3 = ResBlock(3, 64, 128, 1, padding=1, dilation=1,norm_groups=8)
+            self.resblock4 = ResBlock(3, 128, 128, 1, padding=2, dilation=2,norm_groups=8)
         else:
             self.sdea0_0 = SDEABlock(64, 128, max_disp // 4)
             self.sdea0_1 = SDEABlock(128, 128, max_disp // 4)
