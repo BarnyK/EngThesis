@@ -10,10 +10,10 @@ class SDEABlock(nn.Module):
         self.maxdisp = maxdisp
         self.g1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(16,out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(out_channels),
+            nn.GroupNorm(16,out_channels),
             nn.ReLU(),
         )
         self.g2 = nn.Conv2d(out_channels, 1, 1, 1, 0)
