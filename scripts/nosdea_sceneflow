@@ -1,5 +1,5 @@
 python3 network.py train \
-    --epochs 10 \
+    --epochs 12 \
     --batch-size 3 \
     --iters-to-accumulate 4 \
     --learning-rate 0.001 \

@@ -1,0 +1,18 @@
+python network.py evaluate \
+    --left-image ~/Desktop/datasets/kittis/samples/f3d_test1_left.webp \
+    --right-image ~/Desktop/datasets/kittis/samples/f3d_test1_right.webp \
+    --disparity-image ~/Desktop/datasets/kittis/samples/f3d_test1_gt.pfm \
+    --result-image ~/Desktop/datasets/kittis/samples/f3d_test1_res1.png \
+    --cpu \
+    --load ~/data/models/nosdea-sceneflow-1-2 \
+    --max-disp 192 \
+    --no-sdea
+
+python network.py evaluate \
+    --left-image ~/Desktop/datasets/kittis/samples/f3d_test1_left.webp \
+    --right-image ~/Desktop/datasets/kittis/samples/f3d_test1_right.webp \
+    --disparity-image ~/Desktop/datasets/kittis/samples/f3d_test1_gt.pfm \
+    --result-image ~/Desktop/datasets/kittis/samples/f3d_test1_res2.png \
+    --cpu \
+    --load ~/data/models/sdea-sceneflow-1-1_3-1.tmp \
+    --max-disp 192
