@@ -21,12 +21,12 @@ class Hourglass(nn.Module):
 
         self.deconv1 = nn.Sequential(
             nn.ConvTranspose3d(in_layers * 2, in_layers * 2, 3, 2, 1, 1, bias=False),
-            nn.BatchNorm3d(in_layers * 2),
+            nn.GroupNorm(16,in_layers * 2),
         )
 
         self.deconv2 = nn.Sequential(
             nn.ConvTranspose3d(in_layers * 2, in_layers, 3, 2, 1, 1, bias=False),
-            nn.BatchNorm3d(in_layers),
+            nn.GroupNorm(16,in_layers),
         )
 
     def forward(
@@ -52,7 +52,8 @@ class Hourglass(nn.Module):
         if skip2 is not None:
             out = out + skip2
         else:
-            out = out + out_skip1  # Happens on first hourglass
+            # Happens on first hourglass
+            out = out + out_skip1  
 
         out = F.relu(out)
         out_skip2 = out
