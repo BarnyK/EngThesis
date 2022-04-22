@@ -3,15 +3,16 @@ from .utils import match_images_disparities
 from torch.utils.data import random_split
 from torch import Generator
 
-def index_weather(root,split=0.2,validation_length=-1):
+
+def index_weather(root, split=0.2, validation_length=-1, **kwargs):
     if validation_length < 0 and split < 0 or split > 1:
         raise ValueError("split should be a float between 0 and 1")
 
-    left_folder = path.join(root,"left-image-half-size")
-    right_folder = path.join(root,"right-image-half-size")
-    disp_folder = path.join(root,"disparity-map-half-size")
+    left_folder = path.join(root, "left-image-half-size")
+    right_folder = path.join(root, "right-image-half-size")
+    disp_folder = path.join(root, "disparity-map-half-size")
 
-    data = match_images_disparities(left_folder,right_folder,disp_folder,"jpg")
+    data = match_images_disparities(left_folder, right_folder, disp_folder, "jpg")
 
     if validation_length > 0:
         train_length = len(data) - validation_length
@@ -28,13 +29,13 @@ def index_weather(root,split=0.2,validation_length=-1):
     return trainset, testset
 
 
-def combine_weathers(root, split):
-    weathers = "sunny","cloudy","foggy","rainy"
-    paths = [path.join(root,w) for w in weathers]
+def combine_weathers(root, split, **kwargs):
+    weathers = "sunny", "cloudy", "foggy", "rainy"
+    paths = [path.join(root, w) for w in weathers]
     trainset = []
     testset = []
     for p in paths:
-        train, test = index_weather(p,split)
+        train, test = index_weather(p, split)
         trainset.extend(train)
         testset.extend(test)
-    return trainset,testset
+    return trainset, testset

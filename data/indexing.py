@@ -5,7 +5,7 @@ from .indexing_sceneflow import (
     index_monkaa,
     combine_sceneflow,
 )
-from .indexing_drivingstereo import index_weather,combine_weathers
+from .indexing_drivingstereo import index_weather, combine_weathers
 
 SUPPORTED_DATASETS = [
     "kitti2012",
@@ -16,7 +16,7 @@ SUPPORTED_DATASETS = [
     "monkaa",
     "sceneflow",
     "ds-weather",
-    "ds-all-weather"
+    "ds-all-weather",
 ]
 
 
