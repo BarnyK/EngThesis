@@ -7,16 +7,16 @@ from .SPPblock import SPPBlock
 
 
 class FeatureExtraction(nn.Module):
-    def __init__(self, max_disp:int=192, no_sdea:bool=False):
+    def __init__(self, max_disp: int = 192, no_sdea: bool = False):
         """
-            Initialize FeatureExtraction module.
-            @max_disp: maximal disparity needed for SDEA block calculations
-            @no_sdea: controls whether SDEA blocks or ResBlocks are used for 3rd and 4th layer
+        Initialize FeatureExtraction module.
+        @max_disp: maximal disparity needed for SDEA block calculations
+        @no_sdea: controls whether SDEA blocks or ResBlocks are used for 3rd and 4th layer
         """
         super().__init__()
         self.no_sdea = no_sdea
         self.initial = nn.Sequential(
-            conv2d_norm_relu(3, 32, 3, 2, 1),
+            conv2d_norm_relu(3, 32, 3, 2, 1),  # Halfs the resolution
             conv2d_norm_relu(32, 32, 3, 1, 1),
             conv2d_norm_relu(32, 32, 3, 1, 1),
         )

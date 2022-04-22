@@ -6,8 +6,9 @@ from ..utils import conv3d_norm, conv3d_norm_relu
 
 class Hourglass(nn.Module):
     """
-        Singular Hourglass module
+    Singular Hourglass module
     """
+
     def __init__(self, in_layers):
         super().__init__()
         self.conv1 = conv3d_norm_relu(in_layers, in_layers * 2, 3, 2, 1)
@@ -32,8 +33,8 @@ class Hourglass(nn.Module):
     def forward(
         self,
         input,
-        skip1 = None,
-        skip2 = None,
+        skip1=None,
+        skip2=None,
     ):
         out = self.conv1(input)
 

@@ -2,6 +2,11 @@ from data.dataset import DisparityDataset
 from data import index_set
 from torch.utils.data import DataLoader
 
+"""
+    Functions used for testing functionality of the network
+
+"""
+
 
 def test_indexes(args: dict):
     try:
@@ -57,9 +62,11 @@ def test_loader(args: dict):
     import torch
 
     train, test = index_set(**args)
-    trainset = DisparityDataset(train, random_crop=False,return_paths=True)
-    testset = DisparityDataset(test, random_crop=False,return_paths=True)
-    trainloader = DataLoader(trainset, 1, shuffle=False, num_workers=4, pin_memory=False)
+    trainset = DisparityDataset(train, random_crop=False, return_paths=True)
+    testset = DisparityDataset(test, random_crop=False, return_paths=True)
+    trainloader = DataLoader(
+        trainset, 1, shuffle=False, num_workers=4, pin_memory=False
+    )
     testloader = DataLoader(testset, 1, shuffle=False, num_workers=4, pin_memory=False)
 
     for loader in [trainloader, testloader]:

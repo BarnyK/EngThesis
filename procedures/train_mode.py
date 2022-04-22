@@ -49,7 +49,7 @@ def train(
     try:
         trainset, testset = index_set(dataset_name, **kwargs)
         trainset = DisparityDataset(trainset)
-        testset = DisparityDataset(testset, random_crop=False,crop_to_multiple=True)
+        testset = DisparityDataset(testset, random_crop=False, crop_to_multiple=True)
         trainloader = DataLoader(
             trainset,
             batch_size,

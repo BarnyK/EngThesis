@@ -30,7 +30,7 @@ def index_set(dataset_name, **kwargs):
         )
     if not dataset_name or len(dataset_name) == 0:
         raise ValueError("dataset name not specified")
-    
+
     indexers = {
         "kitti2012": index_kitti2012,
         "kitti2015": index_kitti2015,

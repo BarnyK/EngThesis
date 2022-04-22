@@ -84,16 +84,16 @@ def crop_image_to_multiple(
     h_crop = h - (h // multiple) * multiple
     w_crop = w - (w // multiple) * multiple
     if left and top:
-        res = TF.crop(input, 0,0,h-h_crop,w-w_crop)
+        res = TF.crop(input, 0, 0, h - h_crop, w - w_crop)
         return res
     elif left and not top:
-        res = TF.crop(input, h_crop,0,h-h_crop,w-w_crop)
+        res = TF.crop(input, h_crop, 0, h - h_crop, w - w_crop)
         return res
     elif not left and top:
-        res = TF.crop(input, 0,w_crop,h-h_crop,w-w_crop)
+        res = TF.crop(input, 0, w_crop, h - h_crop, w - w_crop)
         return res
     else:
-        res = TF.crop(input, h_crop,w_crop,h-h_crop,w-w_crop)
+        res = TF.crop(input, h_crop, w_crop, h - h_crop, w - w_crop)
         return res
 
 

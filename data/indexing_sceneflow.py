@@ -175,13 +175,24 @@ def combine_sceneflow(root, webp=True, disparity_side="left", **kwargs):
     )
 
     driving, driving_test = index_driving(
-        driving_images, driving_disparity, webp, disparity_side, validation_length=0,
+        driving_images,
+        driving_disparity,
+        webp,
+        disparity_side,
+        validation_length=0,
     )
     flying, flying_test = index_flyingthings(
-        flying_images, flying_disparity, webp, disparity_side,
+        flying_images,
+        flying_disparity,
+        webp,
+        disparity_side,
     )
     monkaa, monkaa_test = index_monkaa(
-        monkaa_images, monkaa_disparity, webp, disparity_side, validation_length=0,
+        monkaa_images,
+        monkaa_disparity,
+        webp,
+        disparity_side,
+        validation_length=0,
     )
 
     trainset = driving + flying + monkaa

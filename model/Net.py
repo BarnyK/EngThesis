@@ -7,6 +7,7 @@ from .blocks import (
 )
 from .utils import init_convolutions
 
+
 class Net(nn.Module):
     ## Main module for Network
     def __init__(self, max_disp=192, no_sdea=False):
@@ -21,12 +22,12 @@ class Net(nn.Module):
         )
 
         for m in self.modules():
-            if isinstance(m,(nn.Conv2d,nn.Conv3d)):
+            if isinstance(m, (nn.Conv2d, nn.Conv3d)):
                 init_convolutions(m)
 
     def to(self, device):
         """
-            Additonaly move the self.disparities array to given device.
+        Additonaly move the self.disparities array to given device.
         """
         new_self = super().to(device)
         new_self.disparities = new_self.disparities.to(device)
@@ -44,7 +45,7 @@ class Net(nn.Module):
 
         # 1 x maxdisp / 4 x H/4 x W/4
         out3 = self.upsample_regression(out3)
-        
+
         # H x W
         if not self.training:
             return out3
@@ -79,7 +80,7 @@ class Net(nn.Module):
             device=left.device,
             dtype=left.dtype,
         )
-        
+
         # Copy from feature matrices to cost volume
         ch = left.shape[1]
         cost[:, :ch, 0, :, :] = left

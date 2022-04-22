@@ -5,11 +5,9 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
-from data.dataset import (DisparityDataset, assert_correct_shape,
-                          read_and_prepare)
+from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
 from data.indexing import index_set
-from data.utils import (check_paths_exist, pad_image_reverse,
-                        pad_image_to_multiple)
+from data.utils import check_paths_exist, pad_image_reverse, pad_image_to_multiple
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model
@@ -63,10 +61,10 @@ def evaluate_one(
         return
 
     left, p = pad_image_to_multiple(left)
-    left = left.to(device,non_blocking=True)
+    left = left.to(device, non_blocking=True)
     right, _ = pad_image_to_multiple(right)
-    right = right.to(device,non_blocking=True)
-    gt = gt.to(device,non_blocking=True)
+    right = right.to(device, non_blocking=True)
+    gt = gt.to(device, non_blocking=True)
 
     assert_correct_shape(left)
     assert_correct_shape(right)
@@ -126,8 +124,12 @@ def eval_dataset(
 
     try:
         trainset, testset = index_set(dataset_name, **kwargs)
-        trainset = DisparityDataset(trainset, random_crop=False, return_paths=True,crop_to_multiple=True)
-        testset = DisparityDataset(testset, random_crop=False, return_paths=True,crop_to_multiple=True)
+        trainset = DisparityDataset(
+            trainset, random_crop=False, return_paths=True, crop_to_multiple=True
+        )
+        testset = DisparityDataset(
+            testset, random_crop=False, return_paths=True, crop_to_multiple=True
+        )
         trainloader = DataLoader(
             trainset,
             1,
@@ -184,7 +186,7 @@ def eval_dataset(
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
             epe = error_epe(gt[mask], prediction[mask])
             e3p = error_3p(gt[mask], prediction[mask])
-            m.add(loss,epe,e3p,1,1)
+            m.add(loss, epe, e3p, 1, 1)
             # print(i, paths[0][0])
             # print("Time taken:", time_taken)
             # print("Loss: ", loss)

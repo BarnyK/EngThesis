@@ -6,17 +6,21 @@ from torch.optim import Optimizer
 from . import Net
 
 
-def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1,groups=16) -> nn.Sequential:
+def conv2d_norm(
+    in_, out, kernel, stride, padding=0, dilation=1, groups=16
+) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(groups ,out),
+        nn.GroupNorm(groups, out),
     )
 
 
-def conv2d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1,groups=16) -> nn.Sequential:
+def conv2d_norm_relu(
+    in_, out, kernel, stride, padding=0, dilation=1, groups=16
+) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(groups,out),
+        nn.GroupNorm(groups, out),
         nn.ReLU(inplace=True),
     )
 
@@ -58,7 +62,10 @@ def load_model(loadpath: str, device: torch.device = torch.device("cpu")):
     state = torch.load(loadpath, map_location=device)
     return state["model"], state["optimizer"], state["scaler"]
 
-def init_convolutions(module: Union[nn.Conv2d,nn.Conv3d]):
-    torch.nn.init.kaiming_normal_(module.weight,a=0,mode="fan_out",nonlinearity="relu")
+
+def init_convolutions(module: Union[nn.Conv2d, nn.Conv3d]):
+    torch.nn.init.kaiming_normal_(
+        module.weight, a=0, mode="fan_out", nonlinearity="relu"
+    )
     if module.bias is not None:
         torch.nn.init.zeros_(module.bias)
