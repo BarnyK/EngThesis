@@ -33,6 +33,8 @@ def index_set(dataset_name, **kwargs):
         )
     if not dataset_name or len(dataset_name) == 0:
         raise ValueError("dataset name not specified")
+    if not kwargs.get("root"):
+        raise KeyError("Root path for dataset not defined")
 
     indexers = {
         "kitti2012": index_kitti2012,
