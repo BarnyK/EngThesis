@@ -38,6 +38,7 @@ def train(
         print(er)
         return
 
+    # Choose device
     try:
         device = choose_device(cpu)
     except Exception as ex:
@@ -78,7 +79,7 @@ def train(
         print(err)
         return
 
-    # Training and test
+    # Training and testing loop
     try:
         for epoch in range(epochs):
             print(f"Epoch {epoch+1} out of {epochs}")
