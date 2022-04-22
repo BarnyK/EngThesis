@@ -168,6 +168,7 @@ def eval_dataset(
                 f.write(log)
 
     def eval_on_loader(loader, mode):
+        m = Metrics()
         for _, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
             left = left.to(device)
             right = right.to(device)
@@ -183,12 +184,14 @@ def eval_dataset(
             loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
             epe = error_epe(gt[mask], prediction[mask])
             e3p = error_3p(gt[mask], prediction[mask])
+            m.add(loss,epe,e3p,1,1)
             # print(i, paths[0][0])
             # print("Time taken:", time_taken)
             # print("Loss: ", loss)
             # print("Endpoint error:", epe)
             # print("3 pixel error:", e3p)
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
+        print(m)
 
     net.eval()
     if not only_testset:
