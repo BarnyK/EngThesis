@@ -6,17 +6,17 @@ from torch.optim import Optimizer
 from . import Net
 
 
-def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
+def conv2d_norm(in_, out, kernel, stride, padding=0, dilation=1,groups=16) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups ,out),
     )
 
 
-def conv2d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1) -> nn.Sequential:
+def conv2d_norm_relu(in_, out, kernel, stride, padding=0, dilation=1,groups=16) -> nn.Sequential:
     return nn.Sequential(
         nn.Conv2d(in_, out, kernel, stride, padding, dilation, bias=False),
-        nn.GroupNorm(16,out),
+        nn.GroupNorm(groups,out),
         nn.ReLU(inplace=True),
     )
 
