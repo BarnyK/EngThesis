@@ -58,11 +58,11 @@ def __index_kitti(
     return trainset, testset
 
 
-def combine_kitti(root, occlussion=True, split=0.2, **kwargs):
+def combine_kitti(root, occlussion=True, **kwargs):
     kitti2012_folder = path.join(root, "data_stereo_flow")
     kitti2015_folder = path.join(root, "data_scene_flow")
-    kitti2012, kitti2012_test = index_kitti2012(kitti2012_folder, occlussion, split)
-    kitti2015, kitti2015_test = index_kitti2015(kitti2015_folder, occlussion, split)
+    kitti2012, kitti2012_test = index_kitti2012(kitti2012_folder, occlussion, validation_length=14)
+    kitti2015, kitti2015_test = index_kitti2015(kitti2015_folder, occlussion, validation_length=20)
     trainset = kitti2012 + kitti2015
     testset = kitti2012_test + kitti2015_test
     return trainset, testset

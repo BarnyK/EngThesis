@@ -148,7 +148,7 @@ def index_monkaa(
     return trainset, testset
 
 
-def combine_sceneflow(root, webp=True, disparity_side="left", split=0.2, **kwargs):
+def combine_sceneflow(root, webp=True, disparity_side="left", **kwargs):
     if root is None:
         raise ValueError("root folder is not set")
     if not path.exists(root):
@@ -175,13 +175,13 @@ def combine_sceneflow(root, webp=True, disparity_side="left", split=0.2, **kwarg
     )
 
     driving, driving_test = index_driving(
-        driving_images, driving_disparity, webp, disparity_side, split
+        driving_images, driving_disparity, webp, disparity_side, validation_length=0,
     )
     flying, flying_test = index_flyingthings(
-        flying_images, flying_disparity, webp, disparity_side
+        flying_images, flying_disparity, webp, disparity_side,
     )
     monkaa, monkaa_test = index_monkaa(
-        monkaa_images, monkaa_disparity, webp, disparity_side, split
+        monkaa_images, monkaa_disparity, webp, disparity_side, validation_length=0,
     )
 
     trainset = driving + flying + monkaa

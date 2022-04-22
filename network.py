@@ -49,9 +49,9 @@ def main():
     train_group.add_argument("--epochs-per-save",dest="epochs_per_save",type=int,default=1,help="How often should temporary model be saved")
 
     eval_group = parser.add_argument_group("Evaluation","Arguments used for evaluation mode")
-    eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation")
-    eval_group.add_argument("--right-image",dest="right_image",type=str, help="Path to right image for evaluation")
-    eval_group.add_argument("--disparity-image",dest="disparity_image",type=str, help="Path to disparity image for evaluation")
+    eval_group.add_argument("--left-image",dest="left_image",type=str, help = "Path to left image for evaluation. Ignored if dataset it set")
+    eval_group.add_argument("--right-image",dest="right_image",type=str, help="Path to right image for evaluation. Ignored if dataset it set")
+    eval_group.add_argument("--disparity-image",dest="disparity_image",type=str, help="Path to disparity image for evaluation. Ignored if dataset it set")
     eval_group.add_argument("--result-image",dest="result_image",type=str, help="Path under which the result will be saved")
     eval_group.add_argument("--only-testset",dest="only_testset",action="store_true",help="Whether dataset validation should be done only on testset or on both")
 
@@ -83,19 +83,21 @@ def setupTest(args: argparse.Namespace):
     # print(kwargs)
     if args.test_indexes:
         return test_indexes(kwargs)
-    if args.test_loading:
+    elif args.test_loading:
         return test_loader(kwargs)
-    if args.print_validation:
+    elif args.print_validation:
         return print_validation(kwargs)
-    if args.print_training:
+    elif args.print_training:
         return print_training(kwargs)
+    else:
+        print("No test arguments specified")
     return
 
 
 def setupEvaluation(args: argparse.Namespace):
     print("Evaluation")
     kwargs = vars(args)
-    if dn := kwargs.get("dataset_name"):
+    if kwargs.get("dataset_name"):
         return eval_dataset(**kwargs)
 
     return evaluate_one(**kwargs)

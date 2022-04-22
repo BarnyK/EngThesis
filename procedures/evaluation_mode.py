@@ -20,6 +20,8 @@ from tqdm import tqdm
 
 from procedures.train_mode import prepare_model_optim_scaler
 
+from .utils import Metrics
+
 
 def evaluate_one(
     left_image: str,
@@ -130,7 +132,7 @@ def eval_dataset(
             trainset,
             1,
             shuffle=False,
-            num_workers=2,
+            num_workers=4,
             pin_memory=not cpu,
         )
         testloader = DataLoader(
@@ -143,7 +145,7 @@ def eval_dataset(
     try:
         net, *_ = prepare_model_optim_scaler(load_file, device, max_disp, no_sdea, 0)
     except FileNotFoundError as err:
-        print("Could not find given load_file ", load_file)
+        print("Could not find given load_file ", load_file, err)
         return
     except UnpicklingError as err:
         print("Could not load given file, because it has wrong format ", load_file)
@@ -166,7 +168,7 @@ def eval_dataset(
                 f.write(log)
 
     def eval_on_loader(loader, mode):
-        for i, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
+        for _, (left, right, gt, paths) in tqdm(enumerate(loader), total=len(loader)):
             left = left.to(device)
             right = right.to(device)
             mask = torch.logical_and(gt < max_disp, gt > 0)

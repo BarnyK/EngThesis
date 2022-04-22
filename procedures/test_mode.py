@@ -59,8 +59,8 @@ def test_loader(args: dict):
     train, test = index_set(**args)
     trainset = DisparityDataset(train, random_crop=False,return_paths=True)
     testset = DisparityDataset(test, random_crop=False,return_paths=True)
-    trainloader = DataLoader(trainset, 1, shuffle=False, num_workers=2, pin_memory=False)
-    testloader = DataLoader(testset, 1, shuffle=False, num_workers=2, pin_memory=False)
+    trainloader = DataLoader(trainset, 1, shuffle=False, num_workers=4, pin_memory=False)
+    testloader = DataLoader(testset, 1, shuffle=False, num_workers=4, pin_memory=False)
 
     for loader in [trainloader, testloader]:
         for i, (l, r, d, p) in tqdm(enumerate(loader), total=len(loader)):
