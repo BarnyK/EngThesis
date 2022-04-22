@@ -2,7 +2,7 @@ import torch
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from torchvision import transforms
-
+from typing import List,Tuple
 from .utils import IMAGENET_NORMALIZATION_PARAMS, crop_image_to_multiple, imagenet_normalization
 from .file_handling import read_file
 
@@ -12,7 +12,7 @@ __to_tensor = transforms.ToTensor()
 class DisparityDataset(Dataset):
     def __init__(
         self,
-        paths: list[tuple[str, str, str]],
+        paths: List[Tuple[str, str, str]],
         random_crop=True,
         crop_shape=(256, 512),
         return_paths: bool = False,
