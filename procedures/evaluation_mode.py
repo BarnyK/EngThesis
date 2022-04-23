@@ -102,7 +102,7 @@ def evaluate_one(
 
     if result_image:
         pred = pred.squeeze(0)
-        res = np.array(pred.cpu(), dtype=np.uint8)
+        res = np.array(pred.cpu()*256, dtype=np.uint16)
         prediction_image = Image.fromarray(res)
         os.makedirs(os.path.dirname(result_image), exist_ok=True)
         if not result_image.lower().endswith(".png"):
