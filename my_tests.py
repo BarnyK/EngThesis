@@ -1,7 +1,7 @@
 import torch
 from data.dataset import DisparityDataset, read_and_prepare
 from data.indexing import index_set
-from data.utils import  pad_image_reverse
+from data.utils import pad_image_reverse
 from measures.measures import error_3p
 from model import Net
 from model.blocks import SDEABlock
@@ -105,12 +105,16 @@ def main5():
 
 def main5():
     from procedures.evaluation_mode import eval_dataset
+
     evaluate_one(
         "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_left.webp",
         "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_right.webp",
         "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_res444.png",
         "/home/barny/Desktop/datasets/kittis/samples/f3d_test1_gt.pfm",
-        192,"/home/barny/data/models/sceneflow-1-3",False,False
+        192,
+        "/home/barny/data/models/sceneflow-1-3",
+        False,
+        False,
     )
     eval_dataset(
         "kittis",
@@ -128,6 +132,7 @@ def main5():
 def main6():
     from model import Net
     from torchinfo import summary
+
     device = "cpu"
 
     with torch.cuda.amp.autocast():
@@ -136,29 +141,33 @@ def main6():
         with open("summary2.txt", "w", encoding="utf-8") as f:
             f.write(str(data))
 
+
 def main7():
     from model import Net
-    x = Net(192, True)
-    left = torch.rand((3,3,256,512))
-    right = torch.rand((3,3,256,512))
 
-    x(left,right)
+    x = Net(192, True)
+    left = torch.rand((3, 3, 256, 512))
+    right = torch.rand((3, 3, 256, 512))
+
+    x(left, right)
+
 
 def main8():
     from data import DisparityDataset
     from torch.utils.data import dataloader
 
     from yeet.dataloader.KITTILoader import myImageFloder
-    tr,te = index_set("kitti2015",root="/home/barny/data/datasets/data_scene_flow/")
-    mtr = DisparityDataset(tr,False)
-    mte = DisparityDataset(te,False)
 
-    ptr = myImageFloder([x[0] for x in tr],[x[1] for x in tr],[x[2] for x in tr],False)
+    tr, te = index_set("kitti2015", root="/home/barny/data/datasets/data_scene_flow/")
+    mtr = DisparityDataset(tr, False)
+    mte = DisparityDataset(te, False)
+
+    ptr = myImageFloder(
+        [x[0] for x in tr], [x[1] for x in tr], [x[2] for x in tr], False
+    )
     x = ptr[0]
     y = mtr[0]
-    return mtr,ptr
-
-
+    return mtr, ptr
 
 
 main5()

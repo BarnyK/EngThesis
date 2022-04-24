@@ -10,10 +10,10 @@ class SDEABlock(nn.Module):
         self.maxdisp = maxdisp
         self.g1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, 1, 1, bias=False),
-            nn.GroupNorm(16,out_channels),
+            nn.GroupNorm(16, out_channels),
             nn.ReLU(),
             nn.Conv2d(out_channels, out_channels, 3, 1, 1, bias=False),
-            nn.GroupNorm(16,out_channels),
+            nn.GroupNorm(16, out_channels),
             nn.ReLU(),
         )
         self.g2 = nn.Conv2d(out_channels, 1, 1, 1, 0)
@@ -71,6 +71,7 @@ def weight_matrix_calculation(left, right, maxdisp: int):
     weight_volume = 1 - torch.sigmoid(weight_volume)
     return weight_volume
 
+
 @torch.jit.script
 def wmc(left, right, maxdisp: int):
     weight_volume = torch.empty(
@@ -80,15 +81,16 @@ def wmc(left, right, maxdisp: int):
             left.shape[2],
             left.shape[3],
         ),
-        device=left.device,dtype=left.dtype,
+        device=left.device,
+        dtype=left.dtype,
     )
 
-    weight_volume[:, :, :, :] = (left-right)
-    for i in range(1,maxdisp+1):
-        weight_volume[:,2*i-1,:,:-i] =  left[:,0,:,:-i]-right[:,0,:,i:]
-        weight_volume[:,2*i,:,i:] = left[:,0,:,i:]-right[:,0,:,:-i]
-    
+    weight_volume[:, :, :, :] = left - right
+    for i in range(1, maxdisp + 1):
+        weight_volume[:, 2 * i - 1, :, :-i] = left[:, 0, :, :-i] - right[:, 0, :, i:]
+        weight_volume[:, 2 * i, :, i:] = left[:, 0, :, i:] - right[:, 0, :, :-i]
+
     weight_volume = weight_volume.abs()
-    weight_volume,_ = weight_volume.min(1,keepdim=True)
+    weight_volume, _ = weight_volume.min(1, keepdim=True)
     weight_volume = 1 - torch.sigmoid(weight_volume)
     return weight_volume

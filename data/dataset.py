@@ -2,8 +2,12 @@ import torch
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from torchvision import transforms
-from typing import List,Tuple
-from .utils import IMAGENET_NORMALIZATION_PARAMS, crop_image_to_multiple, imagenet_normalization
+from typing import List, Tuple
+from .utils import (
+    IMAGENET_NORMALIZATION_PARAMS,
+    crop_image_to_multiple,
+    imagenet_normalization,
+)
 from .file_handling import read_file
 
 __to_tensor = transforms.ToTensor()
@@ -40,9 +44,9 @@ class DisparityDataset(Dataset):
         )
 
         if self.crop_to_multiple:
-            left = crop_image_to_multiple(left,multiple=self.multiple)
-            right = crop_image_to_multiple(right,multiple=self.multiple)
-            disp = crop_image_to_multiple(disp,multiple=self.multiple)
+            left = crop_image_to_multiple(left, multiple=self.multiple)
+            right = crop_image_to_multiple(right, multiple=self.multiple)
+            disp = crop_image_to_multiple(disp, multiple=self.multiple)
 
         if self.return_paths:
             return left, right, disp, self.image_paths[index]

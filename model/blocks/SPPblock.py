@@ -30,7 +30,7 @@ class SPPBlock(nn.Module):
         concat_channels = pool_output_channels * 4 + input_channels + skip_channels
         self.conv = nn.Sequential(
             conv2d_norm_relu(concat_channels, 128, 3, 1, 1),
-            nn.Conv2d(128, 32, 1, 1,bias=False),
+            nn.Conv2d(128, 32, 1, 1, bias=False),
         )
 
     def forward(self, input, skip_connection):
@@ -51,12 +51,12 @@ class SPPBlock(nn.Module):
 
         concat = torch.cat(
             (
-                skip_connection, # 64
-                input,           # 128
-                pool4_result,    # 32
-                pool3_result,    # 32
-                pool2_result,    # 32 
-                pool1_result,    # 32
+                skip_connection,  # 64
+                input,  # 128
+                pool4_result,  # 32
+                pool3_result,  # 32
+                pool2_result,  # 32
+                pool1_result,  # 32
             ),
             dim=1,
         )

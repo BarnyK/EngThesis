@@ -178,7 +178,10 @@ def combine_sceneflow(root, webp=True, disparity_side="left", **kwargs):
         driving_images, driving_disparity, webp, disparity_side, split=0.0,
     )
     flying, flying_test = index_flyingthings(
-        flying_images, flying_disparity, webp, disparity_side,
+        flying_images,
+        flying_disparity,
+        webp,
+        disparity_side,
     )
     monkaa, monkaa_test = index_monkaa(
         monkaa_images, monkaa_disparity, webp, disparity_side, split=0.0,

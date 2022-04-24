@@ -11,7 +11,9 @@ def index_kitti2012(
     if not occlussion:
         disp_folder = "disp_noc"
     if colored:
-        return __index_kitti(root, "colored_0", "colored_1", disp_folder, "png", split, validation_length)
+        return __index_kitti(
+            root, "colored_0", "colored_1", disp_folder, "png", split, validation_length
+        )
     return __index_kitti(
         root, "image_0", "image_1", disp_folder, "png", split, validation_length
     )
@@ -61,8 +63,12 @@ def __index_kitti(
 def combine_kitti(root, occlussion=True, **kwargs):
     kitti2012_folder = path.join(root, "data_stereo_flow")
     kitti2015_folder = path.join(root, "data_scene_flow")
-    kitti2012, kitti2012_test = index_kitti2012(kitti2012_folder, occlussion, validation_length=14)
-    kitti2015, kitti2015_test = index_kitti2015(kitti2015_folder, occlussion, validation_length=20)
+    kitti2012, kitti2012_test = index_kitti2012(
+        kitti2012_folder, occlussion, validation_length=14
+    )
+    kitti2015, kitti2015_test = index_kitti2015(
+        kitti2015_folder, occlussion, validation_length=20
+    )
     trainset = kitti2012 + kitti2015
     testset = kitti2012_test + kitti2015_test
     return trainset, testset

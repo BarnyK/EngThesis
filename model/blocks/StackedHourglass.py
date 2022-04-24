@@ -44,7 +44,7 @@ class StackedHourglassModule(nn.Module):
 
         out3, *_ = self.hourglass3(out2, skip2, skip1)
         out3 += skip_connection
-        
+
         out1 = self.hourglass1_processing(out1)
         out2 = self.hourglass2_processing(out2) + out1
         out3 = self.hourglass3_processing(out3) + out2
