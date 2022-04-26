@@ -62,7 +62,7 @@ def read_image(filename: str) -> Image:
 
 def read_uint16png(filename):
     img = Image.open(filename)
-    img = to_tensor(img).squeeze()
+    img = to_tensor(img).squeeze(0)
     img = img.float() / 256
     return img
 
