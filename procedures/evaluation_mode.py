@@ -64,7 +64,8 @@ def evaluate_one(
     left = left.to(device, non_blocking=True)
     right, _ = pad_image_to_multiple(right)
     right = right.to(device, non_blocking=True)
-    gt = gt.to(device, non_blocking=True)
+    if gt is not None:
+        gt = gt.to(device, non_blocking=True)
 
     assert_correct_shape(left)
     assert_correct_shape(right)

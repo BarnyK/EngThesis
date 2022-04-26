@@ -23,10 +23,15 @@ def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kw
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    return __index_kitti(
+    train, test =  __index_kitti(
         root, "image_2", "image_3", disp_folder, "png", split, validation_length
     )
+    xd = sorted(train+test)
+    train  = xd
 
+    test = [train[i] for i in range(len(train)) if i in [1,3,6,20,26,35,38,41,43,44,49,60,67,70,81,84,89,97,109,119,122,123,129,130,132,134,141,144,152,158,159,165,171,174,179,182,186,187,196]]
+    train = [train[i] for i in range(len(train)) if i not in [1,3,6,20,26,35,38,41,43,44,49,60,67,70,81,84,89,97,109,119,122,123,129,130,132,134,141,144,152,158,159,165,171,174,179,182,186,187,196]]
+    return train, test
 
 def __index_kitti(
     root,

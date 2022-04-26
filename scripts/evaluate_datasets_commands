@@ -20,10 +20,9 @@ python network.py evaluate \
     --dataset kittis \
     --root ~/data/datasets \
     --max-disp 192 \
-    --log-file ~/data/eval-logs/sceneflow-1-2_kittis.log \
-    --load ~/data/models/sceneflow-1-2 \
-    --split 0.2 \
-    --cpu
+    --log-file ~/data/evaltest \
+    --load ~/data/models/nosdea-sceneflow-5-3-kitti-1 \
+    --split 0.0 
 
 python network.py evaluate \
     --dataset kittis \

@@ -16,3 +16,18 @@ python network.py evaluate \
     --cpu \
     --load ~/data/models/sdea-sceneflow-1-1_3-1.tmp \
     --max-disp 192
+
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/data_stereo_flow/training/image_0/000006_10.png \
+    --right-image /home/barny/data/datasets/data_stereo_flow/training/image_1/000006_10.png \
+    --disparity-image /home/barny/data/datasets/data_stereo_flow/training/disp_noc/000006_10.png \
+    --result-image ~/Desktop/000006_10.png \
+    --load /home/barny/data/models/nosdea-sceneflow-5-3-kitti-1 \
+    --max-disp 192
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/data_scene_flow/training/image_2/000194_10.png \
+    --right-image /home/barny/data/datasets/data_scene_flow/training/image_3/000194_10.png \
+    --disparity-image /home/barny/data/datasets/data_scene_flow/training/disp_noc_0/000194_10.png \
+    --result-image ~/Desktop/000194_10.png \
+    --load /home/barny/data/models/nosdea-sceneflow-5-3-kitti2015-1 \
+    --max-disp 192

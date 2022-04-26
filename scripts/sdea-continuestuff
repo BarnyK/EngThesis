@@ -36,3 +36,30 @@ python3 network.py train \
     --split 0.0 \
     --log-file ~/data/logs/sdea-sceneflow-2-3.log \
     --iters-per-log 100
+
+python3 network.py train \
+    --epochs 400 \
+    --batch-size 3 \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/models/nosdea-sceneflow-5-3-kitti-1 \
+    --load ~/data/nosdea-sceneflow-5-3.new \
+    --dataset kittis \
+    --root ~/data/datasets/ \
+    --split 0.0 \
+    --log-file ~/data/logs/nosdea-kitti-1 \
+    --iters-per-log 100 --no-sdea
+
+python3 network.py train \
+    --epochs 600 \
+    --batch-size 3 \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/models/nosdea-sceneflow-5-3-kitti-2 \
+    --load ~/data/models/nosdea-sceneflow-5-3-kitti-1 \
+    --dataset kittis \
+    --root ~/data/datasets/ \
+    --split 0.0 \
+    --log-file ~/data/logs/nosdea-kitti-2 \
+    --iters-per-log 100 --no-sdea
+
