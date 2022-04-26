@@ -1,4 +1,6 @@
 from os import path
+
+from data.file_handling import read_uint16png
 from .utils import match_images_disparities
 from torch.utils.data import random_split
 from torch import Generator
@@ -23,7 +25,7 @@ def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kw
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    train, test =  __index_kitti(
+    train, test,_ =  __index_kitti(
         root, "image_2", "image_3", disp_folder, "png", split, validation_length
     )
     xd = sorted(train+test)
@@ -31,7 +33,7 @@ def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kw
 
     test = [train[i] for i in range(len(train)) if i in [1,3,6,20,26,35,38,41,43,44,49,60,67,70,81,84,89,97,109,119,122,123,129,130,132,134,141,144,152,158,159,165,171,174,179,182,186,187,196]]
     train = [train[i] for i in range(len(train)) if i not in [1,3,6,20,26,35,38,41,43,44,49,60,67,70,81,84,89,97,109,119,122,123,129,130,132,134,141,144,152,158,159,165,171,174,179,182,186,187,196]]
-    return train, test
+    return train, test, read_uint16png
 
 def __index_kitti(
     root,
@@ -62,18 +64,18 @@ def __index_kitti(
     trainset = sorted(trainset, key=lambda x: x[0])
     testset = sorted(testset, key=lambda x: x[0])
 
-    return trainset, testset
+    return trainset, testset, read_uint16png
 
 
 def combine_kitti(root, occlussion=True, **kwargs):
     kitti2012_folder = path.join(root, "data_stereo_flow")
     kitti2015_folder = path.join(root, "data_scene_flow")
-    kitti2012, kitti2012_test = index_kitti2012(
+    kitti2012, kitti2012_test,_ = index_kitti2012(
         kitti2012_folder, occlussion, validation_length=14
     )
-    kitti2015, kitti2015_test = index_kitti2015(
+    kitti2015, kitti2015_test,_ = index_kitti2015(
         kitti2015_folder, occlussion, validation_length=20
     )
     trainset = kitti2012 + kitti2015
     testset = kitti2012_test + kitti2015_test
-    return trainset, testset
+    return trainset, testset, read_uint16png

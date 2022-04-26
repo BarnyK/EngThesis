@@ -46,9 +46,9 @@ def train(
 
     # Create dataloaders
     try:
-        trainset, testset = index_set(dataset_name, **kwargs)
-        trainset = DisparityDataset(trainset)
-        testset = DisparityDataset(testset, random_crop=False, crop_to_multiple=True)
+        trainset, testset, disp_func = index_set(dataset_name, **kwargs)
+        trainset = DisparityDataset(trainset, disp_func)
+        testset = DisparityDataset(testset, disp_func, random_crop=False, crop_to_multiple=True)
         trainloader = DataLoader(
             trainset,
             batch_size,

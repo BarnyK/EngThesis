@@ -8,7 +8,7 @@ from .utils import (
     crop_image_to_multiple,
     imagenet_normalization,
 )
-from .file_handling import read_file
+from .file_handling import read_disparity, read_file, read_image, read_uint16png
 
 __to_tensor = transforms.ToTensor()
 
@@ -17,6 +17,7 @@ class DisparityDataset(Dataset):
     def __init__(
         self,
         paths: List[Tuple[str, str, str]],
+        disp_func,
         random_crop=True,
         crop_shape=(256, 512),
         return_paths: bool = False,
@@ -33,6 +34,7 @@ class DisparityDataset(Dataset):
         self.normalize = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
         self.crop_to_multiple = crop_to_multiple
         self.multiple = multiple
+        self.disp_func = disp_func
 
     def __len__(self):
         return len(self.image_paths)
@@ -40,7 +42,7 @@ class DisparityDataset(Dataset):
     def __getitem__(self, index: int):
         left, right, disp = self.image_paths[index]
         left, right, disp = read_and_prepare(
-            left, right, disp, self.random_crop, self.crop_shape, True
+            left, right, disp, read_disparity=self.disp_func, random_crop= self.random_crop, crop_shape=self.crop_shape, normalize=True
         )
 
         if self.crop_to_multiple:
@@ -62,13 +64,14 @@ def read_and_prepare(
     left: str,
     right: str,
     disparity: str,
+    read_disparity=read_disparity,
     random_crop=False,
     crop_shape=(256, 512),
     normalize=True,
     add_dim=False,
 ):
-    left_data = read_file(left)
-    right_data = read_file(right)
+    left_data = read_image(left)
+    right_data = read_image(right)
 
     if random_crop:
         i, j, w, h = transforms.RandomCrop.get_params(left_data, crop_shape)
@@ -89,14 +92,10 @@ def read_and_prepare(
     if not disparity:
         return left_data, right_data, None
 
-    disp_data = read_file(disparity, disparity=True)
+    disp_data = read_disparity(disparity)
 
     if random_crop:
         disp_data = TF.crop(disp_data, i, j, w, h)
-
-    if not isinstance(disp_data, torch.Tensor):
-        disp_data = __to_tensor(disp_data).squeeze(0)
-        disp_data = disp_data.float() / 256
 
     if add_dim:
         disp_data.unsqueeze_(0)

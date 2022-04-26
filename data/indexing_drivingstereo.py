@@ -1,4 +1,6 @@
 from os import path
+
+from data.file_handling import read_uint16png
 from .utils import match_images_disparities
 from torch.utils.data import random_split
 from torch import Generator
@@ -26,7 +28,7 @@ def index_weather(root, split=0.2, validation_length=-1, **kwargs):
     trainset = sorted(trainset, key=lambda x: x[0])
     testset = sorted(testset, key=lambda x: x[0])
 
-    return trainset, testset
+    return trainset, testset, read_uint16png
 
 
 def combine_weathers(root, split, **kwargs):
@@ -38,4 +40,4 @@ def combine_weathers(root, split, **kwargs):
         train, test = index_weather(p, split)
         trainset.extend(train)
         testset.extend(test)
-    return trainset, testset
+    return trainset, testset, read_uint16png

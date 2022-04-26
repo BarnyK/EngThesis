@@ -56,7 +56,7 @@ def evaluate_one(
             left_image, right_image, disparity_image, add_dim=True
         )
 
-    except Exception as ex:
+    except FileNotFoundError as ex:
         print(ex)
         return
 
@@ -124,12 +124,12 @@ def eval_dataset(
         return
 
     try:
-        trainset, testset = index_set(dataset_name, **kwargs)
+        trainset, testset, disp_func = index_set(dataset_name, **kwargs)
         trainset = DisparityDataset(
-            trainset, random_crop=False, return_paths=True, crop_to_multiple=True
+            trainset, disp_func, random_crop=False, return_paths=True, crop_to_multiple=True
         )
         testset = DisparityDataset(
-            testset, random_crop=False, return_paths=True, crop_to_multiple=True
+            testset, disp_func, random_crop=False, return_paths=True, crop_to_multiple=True
         )
         trainloader = DataLoader(
             trainset,
