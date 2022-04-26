@@ -25,7 +25,7 @@ def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kw
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    train, test =  __index_kitti(
+    train, test,_ =  __index_kitti(
         root, "image_2", "image_3", disp_folder, "png", split, validation_length
     )
     xd = sorted(train+test)
