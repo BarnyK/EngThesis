@@ -74,4 +74,4 @@ def read_file(filename, disparity=False):
     elif disparity:
         return read_uint16png(filename)
     else:
-        return read_image(filename, disparity)
+        return read_image(filename)
