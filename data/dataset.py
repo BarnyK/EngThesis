@@ -97,8 +97,11 @@ def read_and_prepare(
     if random_crop:
         disp_data = TF.crop(disp_data, i, j, w, h)
 
-    if add_dim:
-        disp_data.unsqueeze_(0)
+    try:
+        if add_dim:
+            disp_data.unsqueeze_(0)
+    except:
+        print("HEHERERE")
     return left_data, right_data, disp_data
 
 
