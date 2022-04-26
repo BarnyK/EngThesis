@@ -56,7 +56,7 @@ def evaluate_one(
             left_image, right_image, disparity_image, add_dim=True
         )
 
-    except Exception as ex:
+    except FileNotFoundError as ex:
         print(ex)
         return
 

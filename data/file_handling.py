@@ -75,3 +75,11 @@ def read_file(filename, disparity=False):
         return read_uint16png(filename)
     else:
         return read_image(filename)
+
+def read_disparity(filename):
+    _, ext = path.splitext(filename)
+    ext = ext.lower()
+    if ext == ".pfm":
+        return read_pfm(filename)
+    else:
+        return read_uint16png(filename)

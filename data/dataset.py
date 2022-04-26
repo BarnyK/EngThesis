@@ -8,7 +8,7 @@ from .utils import (
     crop_image_to_multiple,
     imagenet_normalization,
 )
-from .file_handling import read_file, read_image
+from .file_handling import read_disparity, read_file, read_image, read_uint16png
 
 __to_tensor = transforms.ToTensor()
 
@@ -64,7 +64,7 @@ def read_and_prepare(
     left: str,
     right: str,
     disparity: str,
-    read_disparity=read_file,
+    read_disparity=read_disparity,
     random_crop=False,
     crop_shape=(256, 512),
     normalize=True,
