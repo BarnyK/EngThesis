@@ -57,7 +57,7 @@ def read_pfm(filename: str):
 
 def read_image(filename: str) -> Image:
     img = Image.open(filename)
-    return to_tensor(img.convert("RGB"))
+    return img.convert("RGB")
 
 
 def read_uint16png(filename):
