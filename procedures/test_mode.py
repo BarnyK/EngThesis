@@ -4,9 +4,7 @@ from torch.utils.data import DataLoader
 
 """
     Functions used for testing functionality of the network
-
 """
-
 
 def test_indexes(args: dict):
     try:

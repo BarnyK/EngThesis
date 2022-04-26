@@ -3,7 +3,6 @@ from pickle import UnpicklingError
 import torch
 import torch.nn.functional as F
 from data import DisparityDataset, index_set
-from data.utils import pad_image_reverse, pad_image_to_multiple
 from measures import error_3p, error_epe
 from model import Net
 from model.utils import choose_device, load_model, save_model
@@ -12,7 +11,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .utils import Logger, Metrics, create_logger
+from measures.logging import Logger, Metrics, create_logger
 
 
 def train(
@@ -204,7 +203,7 @@ def training_loop(
 
 
 def testing_loop(
-    net: Net, testloader: DataLoader, testset: DisparityDataset, device: torch.device
+    net: Net, testloader: DataLoader, device: torch.device
 ):
     net.eval()
     eval_metrics = Metrics()

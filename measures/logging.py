@@ -14,13 +14,6 @@ class Metrics:
     start_time: float = field(default_factory=time)
     end_time: float = 0
 
-    def __str__(self):
-        res = f"Time taken: {self.time_taken:.2f}s\n"
-        res += f"Average loss: {self.avg_loss:.4f}\n"
-        res += f"Average endpoint error: {self.avg_epe:.4f}\n"
-        res += f"Average 3 pixel error: {self.avg_e3p:.4f}"
-        return res
-
     def add(self, loss, epe, e3p, items, iters):
         self.loss += loss
         self.epe += epe
@@ -30,6 +23,13 @@ class Metrics:
 
     def end(self):
         self.end_time = time()
+
+    def __str__(self):
+        res = f"Time taken: {self.time_taken:.2f}s\n"
+        res += f"Average loss: {self.avg_loss:.4f}\n"
+        res += f"Average endpoint error: {self.avg_epe:.4f}\n"
+        res += f"Average 3 pixel error: {self.avg_e3p:.4f}"
+        return res
 
     @property
     def time_taken(self):
@@ -93,7 +93,7 @@ def create_logger(log_file, save_file, dataset_name, learning_rate) -> Logger:
     if not log_file:
         return DummyTrainingLogger()
     if path.isdir(log_file):
-        raise ValueError("Given log file path is a directory and save is not defined")
+        raise ValueError("Given log file path is a directory")
 
     save_filename = "NoSave"
     if save_file:

@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 from procedures.train_mode import prepare_model_optim_scaler
 
-from .utils import Metrics
+from measures.logging import Metrics
 
 
 def evaluate_one(
@@ -188,11 +188,6 @@ def eval_dataset(
             epe = error_epe(gt[mask], prediction[mask])
             e3p = error_3p(gt[mask], prediction[mask])
             m.add(loss, epe, e3p, 1, 1)
-            # print(i, paths[0][0])
-            # print("Time taken:", time_taken)
-            # print("Loss: ", loss)
-            # print("Endpoint error:", epe)
-            # print("3 pixel error:", e3p)
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
         m.end()
         print(m)
