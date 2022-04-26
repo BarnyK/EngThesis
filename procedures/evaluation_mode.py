@@ -193,6 +193,7 @@ def eval_dataset(
             # print("Endpoint error:", epe)
             # print("3 pixel error:", e3p)
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
+        m.end()
         print(m)
 
     net.eval()
