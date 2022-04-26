@@ -8,7 +8,7 @@ from torchvision import transforms
 
 IMAGENET_NORMALIZATION_PARAMS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 imagenet_normalization = transforms.Normalize(*IMAGENET_NORMALIZATION_PARAMS)
-
+to_tensor = transforms.ToTensor()
 
 def check_paths_exist(*args):
     for a in args:

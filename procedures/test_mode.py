@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 def test_indexes(args: dict):
     try:
-        train, test = index_set(**args)
+        train, test, disp_func = index_set(**args)
         print(
             f"Dataset {args.get('dataset_name')!r} total images: {len(train)+len(test)} training: {len(train)}, test: {len(test)}"
         )
@@ -25,7 +25,7 @@ def test_indexes(args: dict):
 
 def print_validation(args: dict):
     try:
-        train, test = index_set(**args)
+        train, test, disp_func = index_set(**args)
         for t in test:
             print(t[2])
     except FileNotFoundError as er:
@@ -41,7 +41,7 @@ def print_validation(args: dict):
 
 def print_training(args: dict):
     try:
-        train, test = index_set(**args)
+        train, test, disp_func = index_set(**args)
         for t in train:
             print(t[2])
     except FileNotFoundError as er:
@@ -59,9 +59,9 @@ def test_loader(args: dict):
     from tqdm import tqdm
     import torch
 
-    train, test = index_set(**args)
-    trainset = DisparityDataset(train, random_crop=False, return_paths=True)
-    testset = DisparityDataset(test, random_crop=False, return_paths=True)
+    train, test, disp_func = index_set(**args)
+    trainset = DisparityDataset(train, disp_func,random_crop=False, return_paths=True)
+    testset = DisparityDataset(test, disp_func,random_crop=False, return_paths=True)
     trainloader = DataLoader(
         trainset, 1, shuffle=False, num_workers=4, pin_memory=False
     )

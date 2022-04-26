@@ -3,6 +3,8 @@ from os import listdir, path
 from torch import Generator
 from torch.utils.data import random_split
 
+from data.file_handling import read_pfm
+
 from .utils import match_images_disparities
 from .utils import check_paths_exist
 
@@ -62,7 +64,7 @@ def index_driving(
     trainset = sorted(trainset, key=lambda x: x[0])
     testset = sorted(testset, key=lambda x: x[0])
 
-    return trainset, testset
+    return trainset, testset, read_pfm
 
 
 def index_flyingthings(
@@ -99,7 +101,7 @@ def index_flyingthings(
     train_data = __index_flyingthings("TRAIN")
     test_data = __index_flyingthings("TEST")
 
-    return train_data, test_data
+    return train_data, test_data, read_pfm
 
 
 def index_monkaa(
@@ -145,7 +147,7 @@ def index_monkaa(
     trainset = sorted(trainset, key=lambda x: x[0])
     testset = sorted(testset, key=lambda x: x[0])
 
-    return trainset, testset
+    return trainset, testset, read_pfm
 
 
 def combine_sceneflow(root, webp=True, disparity_side="left", **kwargs):
@@ -174,20 +176,20 @@ def combine_sceneflow(root, webp=True, disparity_side="left", **kwargs):
         flying_disparity,
     )
 
-    driving, driving_test = index_driving(
+    driving, driving_test,_ = index_driving(
         driving_images, driving_disparity, webp, disparity_side, split=0.0,
     )
-    flying, flying_test = index_flyingthings(
+    flying, flying_test,_ = index_flyingthings(
         flying_images,
         flying_disparity,
         webp,
         disparity_side,
     )
-    monkaa, monkaa_test = index_monkaa(
+    monkaa, monkaa_test,_ = index_monkaa(
         monkaa_images, monkaa_disparity, webp, disparity_side, split=0.0,
     )
 
     trainset = driving + flying + monkaa
     testset = driving_test + flying_test + monkaa_test
 
-    return trainset, testset
+    return trainset, testset, read_pfm

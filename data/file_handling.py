@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from PIL import Image
 
+from .utils import to_tensor
 
 def __read_PFM(file: str):
     """
@@ -54,17 +55,23 @@ def read_pfm(filename: str):
     return torch.from_numpy(data.copy())
 
 
-def read_image(filename: str, disparity: bool) -> Image:
+def read_image(filename: str) -> Image:
     img = Image.open(filename)
-    if disparity:
-        return img
-    return img.convert("RGB")
+    return to_tensor(img.convert("RGB"))
 
+
+def read_uint16png(filename):
+    img = Image.open(filename)
+    img = to_tensor(img).squeeze()
+    img = img.float() / 256
+    return img
 
 def read_file(filename, disparity=False):
     _, ext = path.splitext(filename)
     ext = ext.lower()
     if ext == ".pfm":
         return read_pfm(filename)
+    elif disparity:
+        return read_uint16png(filename)
     else:
         return read_image(filename, disparity)
