@@ -105,7 +105,7 @@ def train(
             tm = Metrics()
             if eval_each_epoch > 0 and (epoch + 1) % eval_each_epoch == 0:
                 print("Testing loop")
-                tm = testing_loop(net, testloader, testset, device)
+                tm = testing_loop(net, testloader, device)
                 print("Test metrics:")
                 print(tm)
 
