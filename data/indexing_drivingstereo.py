@@ -37,7 +37,7 @@ def combine_weathers(root, split, **kwargs):
     trainset = []
     testset = []
     for p in paths:
-        train, test = index_weather(p, split)
+        train, test, _ = index_weather(p, split)
         trainset.extend(train)
         testset.extend(test)
     return trainset, testset, read_uint16png
