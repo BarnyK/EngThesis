@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
     Functions used for testing functionality of the network
 """
 
+
 def test_indexes(args: dict):
     try:
         train, test, disp_func = index_set(**args)
@@ -60,8 +61,8 @@ def test_loader(args: dict):
     import torch
 
     train, test, disp_func = index_set(**args)
-    trainset = DisparityDataset(train, disp_func,random_crop=False, return_paths=True)
-    testset = DisparityDataset(test, disp_func,random_crop=False, return_paths=True)
+    trainset = DisparityDataset(train, disp_func, random_crop=False, return_paths=True)
+    testset = DisparityDataset(test, disp_func, random_crop=False, return_paths=True)
     trainloader = DataLoader(
         trainset, 1, shuffle=False, num_workers=4, pin_memory=False
     )

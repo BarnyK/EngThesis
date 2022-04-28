@@ -48,7 +48,9 @@ def train(
     try:
         trainset, testset, disp_func = index_set(dataset_name, **kwargs)
         trainset = DisparityDataset(trainset, disp_func)
-        testset = DisparityDataset(testset, disp_func, random_crop=False, crop_to_multiple=True)
+        testset = DisparityDataset(
+            testset, disp_func, random_crop=False, crop_to_multiple=True
+        )
         trainloader = DataLoader(
             trainset,
             batch_size,
@@ -202,9 +204,7 @@ def training_loop(
     return epoch_metric
 
 
-def testing_loop(
-    net: Net, testloader: DataLoader, device: torch.device
-):
+def testing_loop(net: Net, testloader: DataLoader, device: torch.device):
     net.eval()
     eval_metrics = Metrics()
     print("Evaluating on test set")

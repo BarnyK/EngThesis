@@ -42,7 +42,13 @@ class DisparityDataset(Dataset):
     def __getitem__(self, index: int):
         left, right, disp = self.image_paths[index]
         left, right, disp = read_and_prepare(
-            left, right, disp, read_disparity=self.disp_func, random_crop= self.random_crop, crop_shape=self.crop_shape, normalize=True
+            left,
+            right,
+            disp,
+            read_disparity=self.disp_func,
+            random_crop=self.random_crop,
+            crop_shape=self.crop_shape,
+            normalize=True,
         )
 
         if self.crop_to_multiple:

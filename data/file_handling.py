@@ -7,6 +7,7 @@ from PIL import Image
 
 from .utils import to_tensor
 
+
 def __read_PFM(file: str):
     """
     readPFM reads .pfm files and returns them as
@@ -66,6 +67,7 @@ def read_uint16png(filename):
     img = img.float() / 256
     return img
 
+
 def read_file(filename, disparity=False):
     _, ext = path.splitext(filename)
     ext = ext.lower()
@@ -75,6 +77,7 @@ def read_file(filename, disparity=False):
         return read_uint16png(filename)
     else:
         return read_image(filename)
+
 
 def read_disparity(filename):
     _, ext = path.splitext(filename)
