@@ -1,6 +1,6 @@
-import torch
 import torch.nn.functional as F
 from torch import nn
+
 from ..utils import conv3d_norm, conv3d_norm_relu
 
 

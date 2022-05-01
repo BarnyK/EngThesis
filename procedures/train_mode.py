@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from measures.logging import Logger, Metrics, create_logger
+from measures import loss as loss_function
 
 
 def train(
@@ -175,11 +176,8 @@ def training_loop(
 
         with autocast(enabled=device.type == "cuda"):
             d1, d2, d3 = net(left, right)
-            loss = (
-                0.5 * F.smooth_l1_loss(d1[mask], gt[mask])
-                + 0.7 * F.smooth_l1_loss(d2[mask], gt[mask])
-                + F.smooth_l1_loss(d3[mask], gt[mask])
-            )
+            loss = loss_function(gt[mask], d3[mask], d2[mask], d1[mask])
+
         scaler.scale(loss / iters_to_accumulate).backward()
         if (i + 1) % iters_to_accumulate == 0:
             scaler.step(optimizer)

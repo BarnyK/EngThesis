@@ -5,10 +5,13 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
-from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
+from data.dataset import (DisparityDataset, assert_correct_shape,
+                          read_and_prepare)
 from data.indexing import index_set
-from data.utils import check_paths_exist, pad_image_reverse, pad_image_to_multiple
-from measures import error_3p, error_epe
+from data.utils import (check_paths_exist, pad_image_reverse,
+                        pad_image_to_multiple)
+from measures import error_3p, error_epe, Metrics
+from measures.measures import loss as loss_function
 from model import Net
 from model.utils import choose_device, load_model
 from PIL import Image
@@ -17,8 +20,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from procedures.train_mode import prepare_model_optim_scaler
-
-from measures.logging import Metrics
 
 
 def evaluate_one(
@@ -192,10 +193,12 @@ def eval_dataset(
                 et = time.time()
 
             time_taken = et - st
-            loss = F.smooth_l1_loss(gt[mask], prediction[mask]).item()
+            loss = loss_function(gt[mask],prediction[mask]).item()
             epe = error_epe(gt[mask], prediction[mask])
             e3p = error_3p(gt[mask], prediction[mask])
-            m.add(loss, epe, e3p, 1, 1)
+            if len(gt[mask]) != 0:
+                # Skips metrics with NaNs
+                m.add(loss, epe, e3p, 1, 1)
             save_log(mode, paths[0][0], time_taken, loss, epe, e3p)
         m.end()
         print(m)
