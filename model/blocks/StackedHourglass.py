@@ -4,7 +4,7 @@ from ..utils import conv3d_norm, conv3d_norm_relu
 from .Hourglass import Hourglass
 
 
-class StackedHourglassModule(nn.Module):
+class StackedHourglass(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Sequential(

@@ -5,9 +5,9 @@ from torch import nn
 
 
 class SDEABlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, maxdisp: int):
+    def __init__(self, in_channels: int, out_channels: int, max_disp: int):
         super().__init__()
-        self.maxdisp = maxdisp
+        self.max_disp = max_disp
         self.g1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, 1, 1, bias=False),
             nn.GroupNorm(16, out_channels),
@@ -37,8 +37,8 @@ class SDEABlock(nn.Module):
         right_g2 = self.g2(right_g1)
 
         # Weight calculation
-        left_weight = wmc(left_g2, right_g2, self.maxdisp)
-        right_weight = wmc(right_g2, left_g2, self.maxdisp)
+        left_weight = wmc(left_g2, right_g2, self.max_disp)
+        right_weight = wmc(right_g2, left_g2, self.max_disp)
 
         # Elementwise multiplication
         left_out = left_g1 * left_weight
@@ -52,32 +52,11 @@ class SDEABlock(nn.Module):
 
 
 @torch.jit.script
-def weight_matrix_calculation(left, right, maxdisp: int):
-    """
-    Then we are on one G2, for each point x on G2,
-    we find the point x with the minimum difference
-    on the other G2 in themax-disp range
-    """
-
-    weight_volume = torch.empty_like(left)
-
-    for j in range(left.shape[3]):
-        left_bound = max(0, j - maxdisp)
-        right_bound = min(left.shape[3], j + maxdisp)
-        diff = right[:, 0, :, left_bound:right_bound] - left[:, 0, :, j : j + 1]
-        diff = torch.abs(diff)
-        v, _ = diff.min(2)
-        weight_volume[:, 0, :, j] = v
-    weight_volume = 1 - torch.sigmoid(weight_volume)
-    return weight_volume
-
-
-@torch.jit.script
-def wmc(left, right, maxdisp: int):
+def weight_matrix_calculation(left, right, max_disp: int):
     weight_volume = torch.empty(
         (
             left.shape[0],
-            maxdisp * 2 + 1,
+            max_disp * 2 + 1,
             left.shape[2],
             left.shape[3],
         ),
@@ -86,7 +65,7 @@ def wmc(left, right, maxdisp: int):
     )
 
     weight_volume[:, :, :, :] = left - right
-    for i in range(1, maxdisp + 1):
+    for i in range(1, max_disp + 1):
         weight_volume[:, 2 * i - 1, :, :-i] = left[:, 0, :, :-i] - right[:, 0, :, i:]
         weight_volume[:, 2 * i, :, i:] = left[:, 0, :, i:] - right[:, 0, :, :-i]
 

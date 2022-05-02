@@ -5,11 +5,9 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
-from data.dataset import (DisparityDataset, assert_correct_shape,
-                          read_and_prepare)
+from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
 from data.indexing import index_set
-from data.utils import (check_paths_exist, pad_image_reverse,
-                        pad_image_to_multiple)
+from data.utils import check_paths_exist, pad_image_reverse, pad_image_to_multiple
 from measures import error_3p, error_epe, Metrics
 from measures.measures import loss as loss_function
 from model import Net
@@ -193,7 +191,7 @@ def eval_dataset(
                 et = time.time()
 
             time_taken = et - st
-            loss = loss_function(gt[mask],prediction[mask]).item()
+            loss = loss_function(gt[mask], prediction[mask]).item()
             epe = error_epe(gt[mask], prediction[mask])
             e3p = error_3p(gt[mask], prediction[mask])
             if len(gt[mask]) != 0:

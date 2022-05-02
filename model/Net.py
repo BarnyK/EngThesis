@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch import nn
 from .blocks import (
-    StackedHourglassModule,
+    StackedHourglass,
     FeatureExtraction,
 )
 from .utils import init_convolutions
@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.maxdisp = max_disp
         self.feature_extraction = FeatureExtraction(max_disp, no_sdea)
 
-        self.stacked_hourglass = StackedHourglassModule()
+        self.stacked_hourglass = StackedHourglass()
 
         self.disparities = torch.arange(max_disp, requires_grad=False).reshape(
             (1, max_disp, 1, 1)
