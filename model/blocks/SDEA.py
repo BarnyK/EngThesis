@@ -37,8 +37,8 @@ class SDEABlock(nn.Module):
         right_g2 = self.g2(right_g1)
 
         # Weight calculation
-        left_weight = wmc(left_g2, right_g2, self.max_disp)
-        right_weight = wmc(right_g2, left_g2, self.max_disp)
+        left_weight = weight_matrix_calculation(left_g2, right_g2, self.max_disp)
+        right_weight = weight_matrix_calculation(right_g2, left_g2, self.max_disp)
 
         # Elementwise multiplication
         left_out = left_g1 * left_weight
