@@ -16,157 +16,18 @@ def index_kitti2012(
         return __index_kitti(
             root, "colored_0", "colored_1", disp_folder, "png", split, validation_length
         )
-    train, test, _ = __index_kitti(
+    return __index_kitti(
         root, "image_0", "image_1", disp_folder, "png", split, validation_length
     )
-    psmnet = [
-        3,
-        6,
-        20,
-        26,
-        38,
-        41,
-        43,
-        44,
-        49,
-        60,
-        67,
-        70,
-        81,
-        84,
-        89,
-        97,
-        109,
-        119,
-        122,
-        123,
-        129,
-        130,
-        132,
-        134,
-        141,
-        144,
-        152,
-        158,
-        165,
-        171,
-        174,
-        179,
-        184,
-        186,
-    ]
-    xd = sorted(train + test)
-    train = xd
-    test = [train[i] for i in range(len(train)) if i in psmnet]
-    train = [train[i] for i in range(len(train)) if i not in psmnet]
-    return train, test, read_uint16png
-
+    
 
 def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kwargs):
     disp_folder = "disp_occ_0"
     if not occlussion:
         disp_folder = "disp_noc_0"
-    train, test, _ = __index_kitti(
+    return __index_kitti(
         root, "image_2", "image_3", disp_folder, "png", split, validation_length
     )
-    xd = sorted(train + test)
-    train = xd
-
-    test = [
-        train[i]
-        for i in range(len(train))
-        if i
-        in [
-            1,
-            3,
-            6,
-            20,
-            26,
-            35,
-            38,
-            41,
-            43,
-            44,
-            49,
-            60,
-            67,
-            70,
-            81,
-            84,
-            89,
-            97,
-            109,
-            119,
-            122,
-            123,
-            129,
-            130,
-            132,
-            134,
-            141,
-            144,
-            152,
-            158,
-            159,
-            165,
-            171,
-            174,
-            179,
-            182,
-            184,
-            186,
-            187,
-            196,
-        ]
-    ]
-    train = [
-        train[i]
-        for i in range(len(train))
-        if i
-        not in [
-            1,
-            3,
-            6,
-            20,
-            26,
-            35,
-            38,
-            41,
-            43,
-            44,
-            49,
-            60,
-            67,
-            70,
-            81,
-            84,
-            89,
-            97,
-            109,
-            119,
-            122,
-            123,
-            129,
-            130,
-            132,
-            134,
-            141,
-            144,
-            152,
-            158,
-            159,
-            165,
-            171,
-            174,
-            179,
-            182,
-            184,
-            186,
-            187,
-            196,
-        ]
-    ]
-    return train, test, read_uint16png
 
 
 def __index_kitti(
