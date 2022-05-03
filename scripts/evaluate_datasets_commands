@@ -82,10 +82,10 @@ python network.py evaluate \
     --dataset sceneflow \
     --root ~/data/datasets \
     --max-disp 192 \
-    --log-file ~/data/eval-logs/sdea-sceneflow-2-2_sceneflow.log \
-    --load ~/data/models/sdea-sceneflow-2-2 \
+    --log-file ~/data/final_logs/nosdea-sceneflow-best \
+    --load ~/data/chosen_ones/nosdea-sceneflow-best \
     --split 0.0 \
-    --only-testset \
+    --only-testset --no-sdea
 
 
 # python network.py evaluate \

@@ -1,0 +1,35 @@
+python network.py evaluate \
+    --dataset ds-all-weather \
+    --root ~/data/datasets \
+    --max-disp 192 \
+    --log-file ~/data/final_eval/nosdea-driving-whole-good_ds-all.log \
+    --load ~/data/chosen_ones/nosdea-driving-whole-good \
+    --split 0.5 \
+    --only-testset
+
+python network.py evaluate \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --max-disp 192 \
+    --log-file ~/data/final_eval/sdea-kitti2012_kitti2012 \
+    --load ~/data/chosen_ones/sdea-kitti2012-plausible \
+    --split 0.5 \
+    --only-testset 
+
+python network.py evaluate \
+    --dataset kitti2015 \
+    --root ~/data/datasets/data_scene_flow \
+    --max-disp 192 \
+    --log-file ~/data/final_eval/sdea-kitti2015_kitti2015 \
+    --load ~/data/chosen_ones/sdea-kitti2015-best \
+    --split 0.5 \
+    --only-testset 
+
+
+python network.py evaluate \
+    --dataset sceneflow \
+    --root ~/data/datasets \
+    --max-disp 192 \
+    --log-file ~/data/final_eval/nosdea-sceneflow-final_sceneflow.log \
+    --load ~/data/chosen_ones/nosdea-sceneflow-final \
+    --only-testset

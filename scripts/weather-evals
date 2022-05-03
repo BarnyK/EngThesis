@@ -1,0 +1,8 @@
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/nosdea-ds-cloudy.log --load ~/data/chosen_ones/nosdea-ds-cloudy  --no-sdea --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/nosdea-ds-rainy.log --load ~/data/chosen_ones/nosdea-ds-rainy  --no-sdea --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/nosdea-ds-sunny.log --load ~/data/chosen_ones/nosdea-ds-sunny  --no-sdea --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/nosdea-ds-foggy.log --load ~/data/chosen_ones/nosdea-ds-foggy  --no-sdea --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/sdea-ds-cloudy.log --load ~/data/chosen_ones/sdea-ds-cloudy --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/sdea-ds-rainy.log --load ~/data/chosen_ones/sdea-ds-rainy --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/sdea-ds-sunny.log --load ~/data/chosen_ones/sdea-ds-sunny --only-testset --split 0.5
+python network.py evaluate --dataset ds-all-weather --root ~/data/datasets/ --log-file ~/data/final_eval/sdea-ds-foggy.log --load ~/data/chosen_ones/sdea-ds-foggy --only-testset --split 0.5

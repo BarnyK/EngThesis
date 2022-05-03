@@ -1,0 +1,27 @@
+python3 network.py train \
+    --epochs 15 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-sceneflow-better3 \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset sceneflow \
+    --root ~/data/datasets/ \
+    --log-file ~/data/logs/sdea-sceneflow-better3 \
+    --epochs-per-save 1 \
+    --iters-per-log 100 
+
+python3 network.py train \
+    --epochs 10 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-sceneflow-better2 \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset sceneflow \
+    --root ~/data/datasets/ \
+    --log-file ~/data/logs/sdea-sceneflow-better2 \
+    --epochs-per-save 1 \
+    --iters-per-log 100 

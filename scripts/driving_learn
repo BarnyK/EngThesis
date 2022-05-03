@@ -1,0 +1,87 @@
+python3 network.py train \
+    --epochs 100 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-drivingweather-best \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset ds-all-weather \
+    --root ~/data/datasets/ \
+    --split 0.5 \
+    --log-file ~/data/logs/sdea-drivingweather-best.log \
+    --epochs-per-save 5 \
+    --iters-per-log 10 \
+    --eval-each-epoch 10
+
+
+
+# python3 network.py train \
+#     --epochs 60 \
+#     --batch-size 3 \
+#     --iters-to-accumulate 4  \
+#     --learning-rate 0.001 \
+#     --max-disp 192 \
+#     --save ~/data/new_models/nosdea-ds-sunny-half \
+#     --load ~/data/chosen_ones/nosdea-sceneflow-best \
+#     --dataset ds-weather \
+#     --root ~/data/datasets/sunny \
+#     --split 0.5 \
+#     --log-file ~/data/logs/nosdea-ds-sunny-half \
+#     --epochs-per-save 5 \
+#     --iters-per-log 10 \
+#     --no-sdea
+
+
+
+# python3 network.py train \
+#     --epochs 60 \
+#     --batch-size 3 \
+#     --iters-to-accumulate 4  \
+#     --learning-rate 0.001 \
+#     --max-disp 192 \
+#     --save ~/data/new_models/nosdea-ds-rainy-half \
+#     --load ~/data/chosen_ones/nosdea-sceneflow-best \
+#     --dataset ds-weather \
+#     --root ~/data/datasets/rainy \
+#     --split 0.5 \
+#     --log-file ~/data/logs/nosdea-ds-rainy-half \
+#     --epochs-per-save 5 \
+#     --iters-per-log 10 \
+#     --no-sdea
+
+
+
+# python3 network.py train \
+#     --epochs 60 \
+#     --batch-size 3 \
+#     --iters-to-accumulate 4  \
+#     --learning-rate 0.001 \
+#     --max-disp 192 \
+#     --save ~/data/new_models/nosdea-ds-foggy-half \
+#     --load ~/data/chosen_ones/nosdea-sceneflow-best \
+#     --dataset ds-weather \
+#     --root ~/data/datasets/foggy \
+#     --split 0.5 \
+#     --log-file ~/data/logs/nosdea-ds-foggy-half \
+#     --epochs-per-save 5 \
+#     --iters-per-log 10 \
+#     --no-sdea
+
+
+
+# python3 network.py train \
+#     --epochs 10 \
+#     --batch-size 3 \
+#     --iters-to-accumulate 4  \
+#     --learning-rate 0.001 \
+#     --max-disp 192 \
+#     --save ~/data/new_models/sdea-sceneflow-better \
+#     --load ~/data/chosen_ones/sdea-sceneflow-best \
+#     --dataset sceneflow \
+#     --root ~/data/datasets/ \
+#     --log-file ~/data/logs/sdea-sceneflow-better \
+#     --epochs-per-save 1 \
+#     --iters-per-log 100 \
+#     --no-sdea
+

@@ -1,0 +1,182 @@
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 2 \
+    --iters-to-accumulate 6  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2015-weird \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/sdea-kitti2015-weird \
+    --epochs-per-save 0 \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 1 \
+    --iters-to-accumulate 12  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2015-weird2 \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/sdea-kitti2015-weird2 \
+    --epochs-per-save 0 \
+    --iters-per-log 10 
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 3 \
+    --iters-to-accumulate 1  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2015-weird3 \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/sdea-kitti2015-weird3 \
+    --epochs-per-save 0 \
+    --iters-per-log 10 
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2015-1 \
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset kitti2015 \
+    --root ~/data/datasets/data_scene_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/sdea-kitti2015-new-1 \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/nosdea-kitti-2012-1 \
+    --load ~/data/chosen_ones/nosdea-sceneflow-best \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 34 \
+    --log-file ~/data/logs/nosdea-kitti2012-new-1 \
+    --iters-per-log 10 \
+    --epochs-per-save 5 \
+    --no-sdea
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/nosdea-kitti-2015-1 \
+    --load ~/data/chosen_ones/nosdea-sceneflow-best \
+    --dataset kitti2015 \
+    --root ~/data/datasets/data_scene_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/nosdea-kitti2015-new-1 \
+    --iters-per-log 10 \
+    --epochs-per-save 5 \
+    --no-sdea
+
+# ---
+
+python3 network.py train \
+    --epochs 100 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2012-2 \
+    --load ~/data/new_models/sdea-kitti-2012-1 \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 34 \
+    --log-file ~/data/logs/sdea-kitti2012-new-2 \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epochs 100 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-kitti-2015-2 \
+    --load ~/data/new_models/sdea-kitti-2015-1 \
+    --dataset kitti2015 \
+    --root ~/data/datasets/data_scene_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/sdea-kitti2015-new-2 \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epochs 100 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/nosdea-kitti-2012-2 \
+    --load ~/data/new_models/nosdea-kitti-2012-1 \
+    --dataset kitti2012 \
+    --root ~/data/datasets/data_stereo_flow \
+    --occlussion \
+    --validation-length 34 \
+    --log-file ~/data/logs/nosdea-kitti2012-new-2 \
+    --iters-per-log 10 \
+    --epochs-per-save 5 \
+    --no-sdea
+
+python3 network.py train \
+    --epochs 100 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.0001 \
+    --max-disp 192 \
+    --save ~/data/new_models/nosdea-kitti-2015-2 \
+    --load ~/data/new_models/nosdea-kitti-2015-1 \
+    --dataset kitti2015 \
+    --root ~/data/datasets/data_scene_flow \
+    --occlussion \
+    --validation-length 40 \
+    --log-file ~/data/logs/nosdea-kitti2015-new-2 \
+    --iters-per-log 10 \
+    --epochs-per-save 5 \
+    --no-sdea
+
+
+python3 network.py train \
+    --epochs 300 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/nosdea-drving-2015-weird \
+    --load ~/data/chosen_ones/nosdea-sceneflow-best \
+    --dataset ds-all-weather \
+    --root ~/data/datasets/ \
+    --split 0.2 \
+    --log-file ~/data/logs/nosdea-drivingweathers-weird \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+    

@@ -1,0 +1,57 @@
+
+python3 network.py train \
+    --epochs 60 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-sunny\
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset ds-weather \
+    --root ~/data/datasets/sunny \
+    --log-file ~/data/logs/sdea-sunny \
+    --epochs-per-save 5 \
+    --iters-per-log 10 
+
+python3 network.py train \
+    --epochs 60 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-foggy\
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset ds-weather \
+    --root ~/data/datasets/foggy \
+    --log-file ~/data/logs/sdea-foggy \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+
+python3 network.py train \
+    --epochs 60 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-rainy\
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset ds-weather \
+    --root ~/data/datasets/rainy \
+    --log-file ~/data/logs/sdea-rainy \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+    
+python3 network.py train \
+    --epochs 60 \
+    --batch-size 3 \
+    --iters-to-accumulate 4  \
+    --learning-rate 0.001 \
+    --max-disp 192 \
+    --save ~/data/new_models/sdea-cloudy\
+    --load ~/data/chosen_ones/sdea-sceneflow-best \
+    --dataset ds-weather \
+    --root ~/data/datasets/cloudy \
+    --log-file ~/data/logs/sdea-cloudy \
+    --epochs-per-save 5 \
+    --iters-per-log 10
+
