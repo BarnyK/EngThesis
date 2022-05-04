@@ -5,10 +5,12 @@ from pickle import UnpicklingError
 import numpy as np
 import torch
 import torch.nn.functional as F
-from data.dataset import DisparityDataset, assert_correct_shape, read_and_prepare
+from data.dataset import (DisparityDataset, assert_correct_shape,
+                          read_and_prepare)
 from data.indexing import index_set
-from data.utils import check_paths_exist, pad_image_reverse, pad_image_to_multiple
-from measures import error_3p, error_epe, Metrics
+from data.utils import (check_paths_exist, pad_image_reverse,
+                        pad_image_to_multiple)
+from measures import Metrics, error_3p, error_epe
 from measures.measures import loss as loss_function
 from model import Net
 from model.utils import choose_device, load_model
@@ -80,6 +82,17 @@ def evaluate_one(
                 return
     except FileNotFoundError:
         print("Given load file doesn't exist")
+        return
+    except UnpicklingError as err:
+        print("Could not load given file, because it has wrong format ", load_file)
+        return
+    except RuntimeError as err:
+        if "Missing key" in err:
+            print(
+                "This load file has missing keys. Did you specify the correct variant of the network?"
+            )
+        else:
+            print("Print error loading this file.")
         return
 
     net.to(device)
@@ -161,7 +174,12 @@ def eval_dataset(
         print("Could not load given file, because it has wrong format ", load_file)
         return
     except RuntimeError as err:
-        print(err)
+        if "Missing key" in err:
+            print(
+                "This load file has missing keys. Did you specify the correct variant of the network?"
+            )
+        else:
+            print("Print error loading this file.")
         return
 
     if log_file and os.path.isfile(log_file):

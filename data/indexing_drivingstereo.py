@@ -1,9 +1,11 @@
 from os import path
 
-from data.file_handling import read_uint16png
-from .utils import match_images_disparities
-from torch.utils.data import random_split
 from torch import Generator
+from torch.utils.data import random_split
+
+from data.file_handling import read_uint16png
+
+from .utils import match_images_disparities
 
 
 def index_weather(root, split=0.2, validation_length=-1, **kwargs):

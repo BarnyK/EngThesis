@@ -1,5 +1,5 @@
-from data.dataset import DisparityDataset
 from data import index_set
+from data.dataset import DisparityDataset
 from torch.utils.data import DataLoader
 
 """
@@ -57,8 +57,8 @@ def print_training(args: dict):
 
 
 def test_loader(args: dict):
-    from tqdm import tqdm
     import torch
+    from tqdm import tqdm
 
     train, test, disp_func = index_set(**args)
     trainset = DisparityDataset(train, disp_func, random_crop=False, return_paths=True)

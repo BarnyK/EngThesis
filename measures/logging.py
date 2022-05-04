@@ -1,7 +1,7 @@
+from dataclasses import dataclass, field
 from os import path
 from time import time
 from typing import Protocol
-from dataclasses import dataclass, field
 
 
 @dataclass

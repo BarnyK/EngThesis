@@ -11,19 +11,20 @@ python network.py evaluate \
     --dataset kitti2012 \
     --root ~/data/datasets/data_stereo_flow \
     --max-disp 192 \
-    --log-file ~/data/final_eval/sdea-kitti2012_kitti2012 \
+    --log-file ~/data/final_eval/sdea-kitti2012_kitti2012-colored.log \
     --load ~/data/chosen_ones/sdea-kitti2012-plausible \
     --split 0.5 \
-    --only-testset 
+    --only-testset \
+    --colored
 
 python network.py evaluate \
     --dataset kitti2015 \
     --root ~/data/datasets/data_scene_flow \
     --max-disp 192 \
-    --log-file ~/data/final_eval/sdea-kitti2015_kitti2015 \
-    --load ~/data/chosen_ones/sdea-kitti2015-best \
+    --log-file ~/data/final_eval/sdea-kitti2015_kitti2015-occ \
+    --load ~/data/chosen_ones/nosdea-kitti2015-2-final \
     --split 0.5 \
-    --only-testset 
+    --only-testset --occlussion --no-sdea
 
 
 python network.py evaluate \
@@ -33,3 +34,26 @@ python network.py evaluate \
     --log-file ~/data/final_eval/nosdea-sceneflow-final_sceneflow.log \
     --load ~/data/chosen_ones/nosdea-sceneflow-final \
     --only-testset
+
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/sunny/left-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --right-image /home/barny/data/datasets/sunny/right-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --disparity-image /home/barny/data/datasets/sunny/disparity-map-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.png \
+    --load ~/data/chosen_ones/nosdea-ds-foggy --result ../foggy_res.png --no-sdea
+
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/sunny/left-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --right-image /home/barny/data/datasets/sunny/right-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --disparity-image /home/barny/data/datasets/sunny/disparity-map-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.png \
+    --load ~/data/chosen_ones/nosdea-ds-rainy --result ../rainy_res.png --no-sdea
+
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/sunny/left-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --right-image /home/barny/data/datasets/sunny/right-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --disparity-image /home/barny/data/datasets/sunny/disparity-map-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.png \
+    --load ~/data/chosen_ones/nosdea-ds-cloudy --result ../cloudy_res.png --no-sdea
+python network.py evaluate \
+    --left-image /home/barny/data/datasets/sunny/left-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --right-image /home/barny/data/datasets/sunny/right-image-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.jpg \
+    --disparity-image /home/barny/data/datasets/sunny/disparity-map-half-size/2018-10-19-09-30-39_2018-10-19-09-42-11-989.png \
+    --load ~/data/chosen_ones/nosdea-ds-sunny --result ../sunny_res.png --no-sdea

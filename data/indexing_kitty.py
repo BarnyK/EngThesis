@@ -1,9 +1,11 @@
 from os import path
 
-from data.file_handling import read_uint16png
-from .utils import match_images_disparities
-from torch.utils.data import random_split
 from torch import Generator
+from torch.utils.data import random_split
+
+from data.file_handling import read_uint16png
+
+from .utils import match_images_disparities
 
 
 def index_kitti2012(
@@ -19,7 +21,7 @@ def index_kitti2012(
     return __index_kitti(
         root, "image_0", "image_1", disp_folder, "png", split, validation_length
     )
-    
+
 
 def index_kitti2015(root, occlussion=True, split=0.2, validation_length=-1, **kwargs):
     disp_folder = "disp_occ_0"

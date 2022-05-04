@@ -4,15 +4,14 @@ import torch
 import torch.nn.functional as F
 from data import DisparityDataset, index_set
 from measures import error_3p, error_epe
+from measures import loss as loss_function
+from measures.logging import Logger, Metrics, create_logger
 from model import Net
 from model.utils import choose_device, load_model, save_model
 from torch.cuda.amp import GradScaler, autocast
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
-from measures.logging import Logger, Metrics, create_logger
-from measures import loss as loss_function
 
 
 def train(
@@ -78,7 +77,12 @@ def train(
         print("Could not load given file, because it has wrong format ", load_file)
         return
     except RuntimeError as err:
-        print(err)
+        if "Missing key" in err:
+            print(
+                "This load file has missing keys. Did you specify the correct variant of the network?"
+            )
+        else:
+            print("Print error loading this file.", err)
         return
 
     # Training and testing loop

@@ -1,14 +1,14 @@
+from typing import List, Tuple
+
 import torch
 import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset
 from torchvision import transforms
-from typing import List, Tuple
-from .utils import (
-    IMAGENET_NORMALIZATION_PARAMS,
-    crop_image_to_multiple,
-    imagenet_normalization,
-)
-from .file_handling import read_disparity, read_file, read_image, read_uint16png
+
+from .file_handling import (read_disparity, read_file, read_image,
+                            read_uint16png)
+from .utils import (IMAGENET_NORMALIZATION_PARAMS, crop_image_to_multiple,
+                    imagenet_normalization)
 
 __to_tensor = transforms.ToTensor()
 

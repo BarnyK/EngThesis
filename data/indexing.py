@@ -1,11 +1,7 @@
-from .indexing_kitty import index_kitti2012, index_kitti2015, combine_kitti
-from .indexing_sceneflow import (
-    index_driving,
-    index_flyingthings,
-    index_monkaa,
-    combine_sceneflow,
-)
-from .indexing_drivingstereo import index_weather, combine_weathers
+from .indexing_drivingstereo import combine_weathers, index_weather
+from .indexing_kitty import combine_kitti, index_kitti2012, index_kitti2015
+from .indexing_sceneflow import (combine_sceneflow, index_driving,
+                                 index_flyingthings, index_monkaa)
 
 SUPPORTED_DATASETS = [
     "kitti2012",

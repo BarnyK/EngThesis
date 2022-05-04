@@ -5,8 +5,7 @@ from torch.utils.data import random_split
 
 from data.file_handling import read_pfm
 
-from .utils import match_images_disparities
-from .utils import check_paths_exist
+from .utils import check_paths_exist, match_images_disparities
 
 
 def index_driving(

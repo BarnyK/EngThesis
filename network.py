@@ -1,13 +1,10 @@
 import argparse
+
 from data import SUPPORTED_DATASETS
-from procedures.train_mode import train
 from procedures.evaluation_mode import eval_dataset, evaluate_one
-from procedures.test_mode import (
-    test_indexes,
-    print_validation,
-    test_loader,
-    print_training,
-)
+from procedures.test_mode import (print_training, print_validation,
+                                  test_indexes, test_loader)
+from procedures.train_mode import train
 
 # Modes:
 #   Train - training the network
